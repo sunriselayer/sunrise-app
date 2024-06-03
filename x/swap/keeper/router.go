@@ -48,13 +48,13 @@ func (k Keeper) SwapExactAmountIn(
 	tokenOutDenom string,
 	tokenOutMinAmount math.Int,
 ) (tokenOutAmount math.Int, err error) {
-	pool, found := k.swapKeeper.GetPool(ctx, poolId)
+	pool, found := k.liquidityPoolKeeper.GetPool(ctx, poolId)
 	if !found {
 		return math.Int{}, lptypes.ErrPoolNotFound
 	}
 
 	// routeStep to the pool-specific SwapExactAmountIn implementation.
-	tokenOutAmount, err = k.swapKeeper.SwapExactAmountIn(ctx, sender, pool, tokenIn, tokenOutDenom, tokenOutMinAmount, pool.FeeRate)
+	tokenOutAmount, err = k.liquidityPoolKeeper.SwapExactAmountIn(ctx, sender, pool, tokenIn, tokenOutDenom)
 	if err != nil {
 		return math.Int{}, err
 	}
@@ -70,13 +70,13 @@ func (k Keeper) SwapExactAmountInNoTakerFee(
 	tokenOutDenom string,
 	tokenOutMinAmount math.Int,
 ) (tokenOutAmount math.Int, err error) {
-	pool, found := k.swapKeeper.GetPool(ctx, poolId)
+	pool, found := k.liquidityPoolKeeper.GetPool(ctx, poolId)
 	if !found {
 		return math.Int{}, lptypes.ErrPoolNotFound
 	}
 
 	// routeStep to the pool-specific SwapExactAmountIn implementation.
-	tokenOutAmount, err = k.swapKeeper.SwapExactAmountIn(ctx, sender, pool, tokenIn, tokenOutDenom, tokenOutMinAmount, pool.FeeRate)
+	tokenOutAmount, err = k.liquidityPoolKeeper.SwapExactAmountIn(ctx, sender, pool, tokenIn, tokenOutDenom)
 	if err != nil {
 		return math.Int{}, err
 	}
@@ -117,26 +117,25 @@ func (k Keeper) multihopEstimateOutGivenExactAmountInInternal(
 	for _, routeStep := range route {
 		switch strategy := routeStep.Strategy.(type) {
 		case *types.Route_Pool:
-			pool, found := k.swapKeeper.GetPool(ctx, strategy.Pool.PoolId)
+			pool, found := k.liquidityPoolKeeper.GetPool(ctx, strategy.Pool.PoolId)
 			if !found {
 				return math.Int{}, lptypes.ErrPoolNotFound
 			}
 
 			actualTokenIn := tokenIn
 
-			tokenOut, err := k.swapKeeper.CalcOutAmtGivenIn(ctx, pool, actualTokenIn, routeStep.DenomOut, pool.FeeRate)
+			tokenOutAmount, err := k.liquidityPoolKeeper.CalculateResultExactAmountIn(ctx, pool, actualTokenIn, routeStep.DenomOut)
 			if err != nil {
 				return math.Int{}, err
 			}
 
-			tokenOutAmount = tokenOut.Amount
 			if !tokenOutAmount.IsPositive() {
 				return math.Int{}, errors.New("token amount must be positive")
 			}
 
 			// Chain output of current pool as the input for the next routed pool
 			// We don't need to validate the denom,
-			// as CalcOutAmtGivenIn is responsible for ensuring the denom exists in the pool.
+			// as CalculateResultExactAmountIn is responsible for ensuring the denom exists in the pool.
 			tokenIn = sdk.Coin{Denom: routeStep.DenomOut, Amount: tokenOutAmount}
 		case *types.Route_Series:
 			panic("not implemented strategy")
@@ -153,8 +152,6 @@ func (k Keeper) RouteExactAmountOut(ctx sdk.Context,
 	tokenInMaxAmount math.Int,
 	tokenOut sdk.Coin,
 ) (tokenInAmount math.Int, err error) {
-	isMultiHopRouted, routeFeeRate, sumOfFeeRates := false, math.LegacyDec{}, math.LegacyDec{}
-
 	defer func() {
 		if r := recover(); r != nil {
 			tokenInAmount = math.Int{}
@@ -179,7 +176,7 @@ func (k Keeper) RouteExactAmountOut(ctx sdk.Context,
 	for i, routeStep := range route {
 		switch strategy := routeStep.Strategy.(type) {
 		case *types.Route_Pool:
-			pool, found := k.swapKeeper.GetPool(ctx, strategy.Pool.PoolId)
+			pool, found := k.liquidityPoolKeeper.GetPool(ctx, strategy.Pool.PoolId)
 			if !found {
 				return math.Int{}, lptypes.ErrPoolNotFound
 			}
@@ -192,14 +189,7 @@ func (k Keeper) RouteExactAmountOut(ctx sdk.Context,
 				_tokenOut = sdk.NewCoin(route[i+1].DenomIn, insExpected[i+1])
 			}
 
-			feeRate := pool.FeeRate
-			// If we determined the routeStep is an osmo multi-hop and both route are incentivized,
-			// we modify the swap fee accordingly.
-			if isMultiHopRouted {
-				feeRate = routeFeeRate.Mul((feeRate.Quo(sumOfFeeRates)))
-			}
-
-			curTokenInAmount, swapErr := k.swapKeeper.SwapExactAmountOut(ctx, sender, pool, routeStep.DenomIn, insExpected[i], _tokenOut, feeRate)
+			curTokenInAmount, swapErr := k.liquidityPoolKeeper.SwapExactAmountOut(ctx, sender, pool, _tokenOut, routeStep.DenomIn)
 			if swapErr != nil {
 				return math.Int{}, swapErr
 			}
@@ -256,18 +246,18 @@ func (k Keeper) createMultihopExpectedSwapOuts(
 		routeStep := route[i]
 		switch strategy := routeStep.Strategy.(type) {
 		case *types.Route_Pool:
-			pool, found := k.swapKeeper.GetPool(ctx, strategy.Pool.PoolId)
+			pool, found := k.liquidityPoolKeeper.GetPool(ctx, strategy.Pool.PoolId)
 			if !found {
 				return nil, lptypes.ErrPoolNotFound
 			}
 
-			tokenIn, err := k.swapKeeper.CalcInAmtGivenOut(ctx, pool, tokenOut, routeStep.DenomIn, pool.FeeRate)
+			tokenIn, err := k.liquidityPoolKeeper.CalculateResultExactAmountOut(ctx, pool, tokenOut, routeStep.DenomIn)
 			if err != nil {
 				return nil, err
 			}
 
-			insExpected[i] = tokenIn.Amount
-			tokenOut = tokenIn
+			insExpected[i] = tokenIn
+			tokenOut = sdk.NewCoin(routeStep.DenomIn, tokenIn)
 		case *types.Route_Series:
 			panic("not implemented strategy")
 		case *types.Route_Parallel:

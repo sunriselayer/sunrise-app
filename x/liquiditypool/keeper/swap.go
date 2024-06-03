@@ -97,57 +97,44 @@ func (k Keeper) SwapExactAmountIn(
 	sender sdk.AccAddress,
 	pool types.Pool,
 	tokenIn sdk.Coin,
-	tokenOutDenom string,
-	tokenOutMinAmount math.Int,
-	spreadFactor math.LegacyDec,
-) (tokenOutAmount math.Int, err error) {
-	if tokenIn.Denom == tokenOutDenom {
+	denomOut string) (amountOut math.Int, err error) {
+	if tokenIn.Denom == denomOut {
 		return math.Int{}, types.ErrDenomDuplication
 	}
 
 	baseForQuote := getBaseForQuote(tokenIn.Denom, pool.DenomBase)
 
 	priceLimit := swapstrategy.GetPriceLimit(baseForQuote)
-	tokenIn, tokenOut, _, err := k.swapOutAmtGivenIn(ctx, sender, pool, tokenIn, tokenOutDenom, spreadFactor, priceLimit)
+	tokenIn, tokenOut, _, err := k.swapOutAmtGivenIn(ctx, sender, pool, tokenIn, denomOut, pool.FeeRate, priceLimit)
 	if err != nil {
 		return math.Int{}, err
 	}
-	tokenOutAmount = tokenOut.Amount
+	amountOut = tokenOut.Amount
 
-	if tokenOutAmount.LT(tokenOutMinAmount) {
-		return math.Int{}, types.ErrLessThanMinAmount
-	}
-
-	return tokenOutAmount, nil
+	return amountOut, nil
 }
 
 func (k Keeper) SwapExactAmountOut(
 	ctx sdk.Context,
 	sender sdk.AccAddress,
 	pool types.Pool,
-	tokenInDenom string,
-	tokenInMaxAmount math.Int,
 	tokenOut sdk.Coin,
-	spreadFactor math.LegacyDec,
-) (tokenInAmount math.Int, err error) {
-	if tokenOut.Denom == tokenInDenom {
+	denomIn string,
+) (amountIn math.Int, err error) {
+	if tokenOut.Denom == denomIn {
 		return math.Int{}, types.ErrDenomDuplication
 	}
 
-	baseForQuote := getBaseForQuote(tokenInDenom, pool.DenomBase)
+	baseForQuote := getBaseForQuote(denomIn, pool.DenomBase)
 
 	priceLimit := swapstrategy.GetPriceLimit(baseForQuote)
-	tokenIn, tokenOut, _, err := k.swapInAmtGivenOut(ctx, sender, pool, tokenOut, tokenInDenom, spreadFactor, priceLimit)
+	tokenIn, tokenOut, _, err := k.swapInAmtGivenOut(ctx, sender, pool, tokenOut, denomIn, pool.FeeRate, priceLimit)
 	if err != nil {
 		return math.Int{}, err
 	}
-	tokenInAmount = tokenIn.Amount
+	amountIn = tokenIn.Amount
 
-	if tokenInAmount.GT(tokenInMaxAmount) {
-		return math.Int{}, types.ErrGreaterThanMaxAmount
-	}
-
-	return tokenInAmount, nil
+	return amountIn, nil
 }
 
 func (k Keeper) swapOutAmtGivenIn(
@@ -206,7 +193,7 @@ func (k *Keeper) swapInAmtGivenOut(
 
 var unboundedPriceLimit = math.LegacyZeroDec()
 
-func (k Keeper) CalcOutAmtGivenIn(
+func (k Keeper) CalculateResultExactAmountIn(
 	ctx sdk.Context,
 	pool types.Pool,
 	tokenIn sdk.Coin,
@@ -221,7 +208,7 @@ func (k Keeper) CalcOutAmtGivenIn(
 	return sdk.NewCoin(tokenOutDenom, swapResult.AmountOut), nil
 }
 
-func (k Keeper) CalcInAmtGivenOut(
+func (k Keeper) CalculateResultExactAmountOut(
 	ctx sdk.Context,
 	pool types.Pool,
 	tokenOut sdk.Coin,
