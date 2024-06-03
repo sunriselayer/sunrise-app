@@ -198,14 +198,13 @@ func (k Keeper) CalculateResultExactAmountIn(
 	pool types.Pool,
 	tokenIn sdk.Coin,
 	tokenOutDenom string,
-	spreadFactor math.LegacyDec,
-) (tokenOut sdk.Coin, err error) {
+) (tokenOut math.Int, err error) {
 	cacheCtx, _ := ctx.CacheContext()
-	swapResult, _, err := k.computeOutAmtGivenIn(cacheCtx, pool.Id, tokenIn, tokenOutDenom, spreadFactor, unboundedPriceLimit, false)
+	swapResult, _, err := k.computeOutAmtGivenIn(cacheCtx, pool.Id, tokenIn, tokenOutDenom, pool.FeeRate, unboundedPriceLimit, false)
 	if err != nil {
-		return sdk.Coin{}, err
+		return math.ZeroInt(), err
 	}
-	return sdk.NewCoin(tokenOutDenom, swapResult.AmountOut), nil
+	return swapResult.AmountOut, nil
 }
 
 func (k Keeper) CalculateResultExactAmountOut(
@@ -213,14 +212,13 @@ func (k Keeper) CalculateResultExactAmountOut(
 	pool types.Pool,
 	tokenOut sdk.Coin,
 	tokenInDenom string,
-	spreadFactor math.LegacyDec,
-) (sdk.Coin, error) {
+) (math.Int, error) {
 	cacheCtx, _ := ctx.CacheContext()
-	swapResult, _, err := k.computeInAmtGivenOut(cacheCtx, tokenOut, tokenInDenom, spreadFactor, unboundedPriceLimit, pool.Id, false)
+	swapResult, _, err := k.computeInAmtGivenOut(cacheCtx, tokenOut, tokenInDenom, pool.FeeRate, unboundedPriceLimit, pool.Id, false)
 	if err != nil {
-		return sdk.Coin{}, err
+		return math.ZeroInt(), err
 	}
-	return sdk.NewCoin(tokenInDenom, swapResult.AmountIn), nil
+	return swapResult.AmountIn, nil
 }
 
 func (k Keeper) swapSetup(
