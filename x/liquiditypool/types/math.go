@@ -19,14 +19,13 @@ func LiquidityBase(amount math.Int, sqrtPriceA, sqrtPriceB math.LegacyDec) math.
 		sqrtPriceA, sqrtPriceB = sqrtPriceB, sqrtPriceA
 	}
 
-	amounDec := math.LegacyNewDecFromInt(amount)
 	product := sqrtPriceA.Mul(sqrtPriceB)
 	diff := sqrtPriceB.Sub(sqrtPriceA)
 	if diff.IsZero() {
 		return math.LegacyZeroDec()
 	}
 
-	return amounDec.Mul(product).Quo(diff)
+	return math.LegacyNewDecFromInt(amount).Mul(product).Quo(diff)
 }
 
 // LiquidityQuote = amountQuote / (sqrtPriceB - sqrtPriceA)
@@ -35,13 +34,12 @@ func LiquidityQuote(amount math.Int, sqrtPriceA, sqrtPriceB math.LegacyDec) math
 		sqrtPriceA, sqrtPriceB = sqrtPriceB, sqrtPriceA
 	}
 
-	amountBigDec := math.LegacyNewDecFromInt(amount)
 	diff := sqrtPriceB.Sub(sqrtPriceA)
 	if diff.IsZero() {
 		return math.LegacyZeroDec()
 	}
 
-	return amountBigDec.Quo(diff)
+	return math.LegacyNewDecFromInt(amount).Quo(diff)
 }
 
 // CalcAmountBaseDelta = (liquidity * (sqrtPriceB - sqrtPriceA)) / (sqrtPriceB * sqrtPriceA)

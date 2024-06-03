@@ -69,6 +69,8 @@ func (k msgServer) CreatePosition(goCtx context.Context, msg *types.MsgCreatePos
 		if err != nil {
 			return nil, err
 		}
+		// Get updated pool after initialization
+		pool, _ = k.GetPool(ctx, msg.PoolId)
 	}
 
 	// Calculate the amount of liquidity that will be added to the pool when this position is created.
