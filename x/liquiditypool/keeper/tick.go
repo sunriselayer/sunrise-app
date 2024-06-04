@@ -65,11 +65,7 @@ func (k Keeper) newTickInfo(ctx context.Context, poolId uint64, tickIndex int64)
 		return tickStruct, err
 	}
 
-	// TODO: update pool uptime accumulators
 	// TODO: get initial update growth
-
-	initialUptimeTrackers := []types.UptimeTracker{}
-	uptimeTrackers := types.UptimeTrackers{List: initialUptimeTrackers}
 
 	return types.TickInfo{
 		PoolId:         poolId,
@@ -77,7 +73,6 @@ func (k Keeper) newTickInfo(ctx context.Context, poolId uint64, tickIndex int64)
 		LiquidityGross: math.LegacyZeroDec(),
 		LiquidityNet:   math.LegacyZeroDec(),
 		FeeGrowth:      initialFeeGrowth,
-		UptimeTrackers: uptimeTrackers,
 	}, nil
 }
 

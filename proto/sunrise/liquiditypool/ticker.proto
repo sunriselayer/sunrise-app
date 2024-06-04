@@ -24,19 +24,4 @@ message TickInfo {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable) = false
   ];
-  UptimeTrackers uptime_trackers = 6 [
-    (gogoproto.moretags) = "yaml:\"uptime_trackers\"",
-    (gogoproto.nullable) = false
-  ];
-}
-
-message UptimeTrackers {
-  repeated UptimeTracker list = 1 [ (gogoproto.nullable) = false ];
-}
-
-message UptimeTracker {
-  repeated cosmos.base.v1beta1.DecCoin uptime_growth_outside = 1 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable) = false
-  ];
 }

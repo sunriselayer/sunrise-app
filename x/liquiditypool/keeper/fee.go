@@ -162,28 +162,9 @@ func (k Keeper) prepareClaimableFees(ctx sdk.Context, positionId uint64) (sdk.Co
 		return nil, err
 	}
 
-	feesClaimedScaled, forfeitedDustScaled, err := updateAccumAndClaimRewards(feeAccumulator, positionKey, feeGrowthOutside)
+	feesClaimed, forfeitedDust, err := updateAccumAndClaimRewards(feeAccumulator, positionKey, feeGrowthOutside)
 	if err != nil {
 		return nil, err
-	}
-
-	spreadFactorScalingFactor, err := k.getSpreadFactorScalingFactorForPool(ctx, position.PoolId)
-	if err != nil {
-		return nil, err
-	}
-
-	feesClaimed := sdk.NewCoins()
-	forfeitedDust := sdk.DecCoins{}
-	if spreadFactorScalingFactor.Equal(math.LegacyOneDec()) {
-		feesClaimed = feesClaimedScaled
-		forfeitedDust = forfeitedDustScaled
-	} else {
-		for _, coin := range feesClaimedScaled {
-			scaledCoinAmt := scaleDownFeeAmount(coin.Amount, spreadFactorScalingFactor)
-			if !scaledCoinAmt.IsZero() {
-				feesClaimed = append(feesClaimed, sdk.NewCoin(coin.Denom, scaledCoinAmt))
-			}
-		}
 	}
 
 	if !forfeitedDust.IsZero() {
@@ -222,14 +203,6 @@ func updatePositionToInitValuePlusGrowthOutside(accumulator *AccumulatorObject, 
 		return err
 	}
 	return nil
-}
-
-func scaleDownFeeAmount(incentiveAmount math.Int, scalingFactor math.LegacyDec) (scaledTotalEmittedAmount math.Int) {
-	return incentiveAmount.ToLegacyDec().QuoTruncateMut(scalingFactor).TruncateInt()
-}
-
-func (k Keeper) getSpreadFactorScalingFactorForPool(ctx sdk.Context, poolID uint64) (math.LegacyDec, error) {
-	return math.LegacyOneDec(), nil
 }
 
 func updateAccumAndClaimRewards(accum *AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) (sdk.Coins, sdk.DecCoins, error) {

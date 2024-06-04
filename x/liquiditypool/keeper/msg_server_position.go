@@ -156,8 +156,8 @@ func (k msgServer) IncreaseLiquidity(goCtx context.Context, msg *types.MsgIncrea
 	// Create a new position with combined liquidity
 	amountBaseDesired := amountBaseWithdrawn.Add(msg.AmountBase)
 	amountQuoteDesired := amountQuoteWithdrawn.Add(msg.AmountQuote)
-	minimumAmountBase := amountBaseWithdrawn.Add(msg.MinAmountBase)
-	minimumAmountQuote := amountQuoteWithdrawn.Add(msg.MinAmountQuote)
+	minAmountBase := amountBaseWithdrawn.Add(msg.MinAmountBase)
+	minAmountQuote := amountQuoteWithdrawn.Add(msg.MinAmountQuote)
 
 	res, err := k.CreatePosition(ctx, &types.MsgCreatePosition{
 		Sender:         msg.Sender,
@@ -166,8 +166,8 @@ func (k msgServer) IncreaseLiquidity(goCtx context.Context, msg *types.MsgIncrea
 		UpperTick:      position.UpperTick,
 		TokenBase:      sdk.NewCoin(pool.DenomBase, amountBaseDesired),
 		TokenQuote:     sdk.NewCoin(pool.DenomQuote, amountQuoteDesired),
-		MinAmountBase:  minimumAmountBase,
-		MinAmountQuote: minimumAmountQuote,
+		MinAmountBase:  minAmountBase,
+		MinAmountQuote: minAmountQuote,
 	})
 	if err != nil {
 		return nil, err

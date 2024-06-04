@@ -86,7 +86,6 @@ func (p *Pool) ApplySwap(newLiquidity math.LegacyDec, newCurrentTick int64, newC
 		return ErrNegativeSqrtPrice
 	}
 
-	// Check if the new tick provided is within boundaries of the pool's precision factor.
 	if newCurrentTick < TICK_MIN || newCurrentTick > TICK_MAX {
 		return ErrTickIndexOutOfBoundaries
 	}

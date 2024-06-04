@@ -17,10 +17,7 @@ import (
 type quoteForBaseStrategy struct {
 	sqrtPriceLimit math.LegacyDec
 	storeService   store.KVStoreService
-	spreadFactor   math.LegacyDec
-
-	oneMinusSpreadFactor math.LegacyDec
-	spfOverOneMinusSpf   math.LegacyDec
+	feeRate        math.LegacyDec
 }
 
 var _ SwapStrategy = (*quoteForBaseStrategy)(nil)
@@ -37,14 +34,13 @@ func (s quoteForBaseStrategy) GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDe
 func (s quoteForBaseStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountQuoteInRemaining math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
 	amountQuoteIn := types.CalcAmountQuoteDelta(liquidity, sqrtPriceTarget, sqrtPriceCurrent, true)
 
-	oneMinusTakerFee := s.getOneMinusSpreadFactor()
-	amountQuoteInRemainingLessSpreadReward := amountQuoteInRemaining.Mul(oneMinusTakerFee)
+	amountQuoteInAfterFee := amountQuoteInRemaining.Mul(math.LegacyOneDec().Sub(s.feeRate))
 
 	var sqrtPriceNext math.LegacyDec
-	if amountQuoteInRemainingLessSpreadReward.GTE(amountQuoteIn) {
+	if amountQuoteInAfterFee.GTE(amountQuoteIn) {
 		sqrtPriceNext = sqrtPriceTarget
 	} else {
-		sqrtPriceNext = types.GetNextSqrtPriceFromAmountQuoteInRoundingDown(sqrtPriceCurrent, liquidity, amountQuoteInRemainingLessSpreadReward)
+		sqrtPriceNext = types.GetNextSqrtPriceFromAmountQuoteInRoundingDown(sqrtPriceCurrent, liquidity, amountQuoteInAfterFee)
 	}
 
 	hasReachedTarget := sqrtPriceTarget.Equal(sqrtPriceNext)
@@ -55,8 +51,8 @@ func (s quoteForBaseStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent
 
 	amountBaseOut := types.CalcAmountBaseDelta(liquidity, sqrtPriceNext, sqrtPriceCurrent, false)
 
-	spreadRewardChargeTotal := computeSpreadRewardChargePerSwapStepOutGivenIn(hasReachedTarget, amountQuoteIn, amountQuoteInRemaining, s.spreadFactor, s.getSpfOverOneMinusSpf)
-	return sqrtPriceNext, amountQuoteIn, amountBaseOut, spreadRewardChargeTotal
+	feeChargeTotal := computeFeeChargePerSwapStepOutGivenIn(hasReachedTarget, amountQuoteIn, amountQuoteInRemaining, s.feeRate)
+	return sqrtPriceNext, amountQuoteIn, amountBaseOut, feeChargeTotal
 }
 
 func (s quoteForBaseStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountBaseRemainingOut math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
@@ -76,31 +72,16 @@ func (s quoteForBaseStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent
 	}
 
 	amountQuoteIn := types.CalcAmountQuoteDelta(liquidity, sqrtPriceNext, sqrtPriceCurrent, true)
-
-	spreadRewardChargeTotal := computeSpreadRewardChargeFromAmountIn(amountQuoteIn, s.getSpfOverOneMinusSpf())
+	feeChargeTotal := computeFeeChargeFromInAmount(amountQuoteIn, getFeeRateOverOneMinusFeeRate(s.feeRate))
 
 	if amountBaseOut.GT(amountBaseRemainingOut) {
 		amountBaseOut = amountBaseRemainingOut
 	}
 
-	return sqrtPriceNext, amountBaseOut, amountQuoteIn, spreadRewardChargeTotal
+	return sqrtPriceNext, amountBaseOut, amountQuoteIn, feeChargeTotal
 }
 
-func (s quoteForBaseStrategy) getOneMinusSpreadFactor() math.LegacyDec {
-	if s.oneMinusSpreadFactor.IsNil() {
-		s.oneMinusSpreadFactor = oneDec.Sub(s.spreadFactor)
-	}
-	return s.oneMinusSpreadFactor
-}
-
-func (s quoteForBaseStrategy) getSpfOverOneMinusSpf() math.LegacyDec {
-	if s.spfOverOneMinusSpf.IsNil() {
-		s.spfOverOneMinusSpf = s.spreadFactor.QuoRoundUp(s.getOneMinusSpreadFactor())
-	}
-	return s.spfOverOneMinusSpf
-}
-
-func (s quoteForBaseStrategy) InitializeNextTickIterator(ctx sdk.Context, poolId uint64, currentTickIndex int64) dbm.Iterator {
+func (s quoteForBaseStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, currentTickIndex int64) dbm.Iterator {
 	storeAdapter := runtime.KVStoreAdapter(s.storeService.OpenKVStore(ctx))
 	prefixBz := types.KeyTickPrefixByPoolId(poolId)
 	prefixStore := prefix.NewStore(storeAdapter, prefixBz)
@@ -125,7 +106,7 @@ func (s quoteForBaseStrategy) SetLiquidityDeltaSign(deltaLiquidity math.LegacyDe
 	return deltaLiquidity
 }
 
-func (s quoteForBaseStrategy) UpdateTickAfterCrossing(nextTick int64) int64 {
+func (s quoteForBaseStrategy) NextTickAfterCrossing(nextTick int64) int64 {
 	return nextTick
 }
 
