@@ -23,7 +23,7 @@ func (k Keeper) GetFeeAccumulator(ctx context.Context, poolId uint64) (types.Acc
 	return k.GetAccumulator(ctx, types.KeyFeePoolAccumulator(poolId))
 }
 
-func (k Keeper) initOrUpdatePositionFeeAccumulator(ctx sdk.Context, poolId uint64, lowerTick, upperTick int64, positionId uint64, liquidityDelta math.LegacyDec) error {
+func (k Keeper) SetAccumPositionFeeAccumulator(ctx sdk.Context, poolId uint64, lowerTick, upperTick int64, positionId uint64, liquidityDelta math.LegacyDec) error {
 	feeAccumulator, err := k.GetFeeAccumulator(ctx, poolId)
 	if err != nil {
 		return err
