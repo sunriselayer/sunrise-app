@@ -83,8 +83,8 @@ func GetAccumulator(accumStore store.KVStore, accumName string) (*AccumulatorObj
 	return &accum, nil
 }
 
-func (accum AccumulatorObject) MustGetPosition(name string) types.Record {
-	position := types.Record{}
+func (accum AccumulatorObject) MustGetAccumPosition(name string) types.AccumRecord {
+	position := types.AccumRecord{}
 	bz, err := accum.store.Get(types.FormatKeyAccumPositionPrefix(accum.name, name))
 	if err != nil {
 		panic(err)
@@ -99,8 +99,8 @@ func (accum AccumulatorObject) MustGetPosition(name string) types.Record {
 	return position
 }
 
-func (accum AccumulatorObject) GetPosition(name string) (types.Record, error) {
-	position := types.Record{}
+func (accum AccumulatorObject) GetAccumPosition(name string) (types.AccumRecord, error) {
+	position := types.AccumRecord{}
 	bz, err := accum.store.Get(types.FormatKeyAccumPositionPrefix(accum.name, name))
 	if err != nil {
 		return position, err
@@ -164,13 +164,13 @@ func (accum *AccumulatorObject) AddToPositionIntervalAccumulation(name string, n
 		return errors.New("Adding non-positive number of shares to position")
 	}
 
-	position, err := GetPosition(accum, name)
+	position, err := GetAccumPosition(accum, name)
 	if err != nil {
 		return err
 	}
 
 	unclaimedRewards := GetTotalRewards(accum, position)
-	oldNumShares, err := accum.GetPositionSize(name)
+	oldNumShares, err := accum.GetAccumPositionSize(name)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (accum *AccumulatorObject) RemoveFromPositionIntervalAccumulation(name stri
 		return fmt.Errorf("Removing non-positive shares (%s)", numSharesToRemove)
 	}
 
-	position, err := GetPosition(accum, name)
+	position, err := GetAccumPosition(accum, name)
 	if err != nil {
 		return err
 	}
@@ -207,7 +207,7 @@ func (accum *AccumulatorObject) RemoveFromPositionIntervalAccumulation(name stri
 	}
 
 	unclaimedRewards := GetTotalRewards(accum, position)
-	oldNumShares, err := accum.GetPositionSize(name)
+	oldNumShares, err := accum.GetAccumPositionSize(name)
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (accum *AccumulatorObject) UpdatePositionIntervalAccumulation(name string, 
 }
 
 func (accum *AccumulatorObject) SetPositionIntervalAccumulation(name string, intervalAccumulationPerShare sdk.DecCoins) error {
-	position, err := GetPosition(accum, name)
+	position, err := GetAccumPosition(accum, name)
 	if err != nil {
 		return err
 	}
@@ -252,7 +252,7 @@ func (accum *AccumulatorObject) SetPositionIntervalAccumulation(name string, int
 }
 
 func (accum *AccumulatorObject) DeletePosition(positionName string) (sdk.DecCoins, error) {
-	position, err := accum.GetPosition(positionName)
+	position, err := accum.GetAccumPosition(positionName)
 	if err != nil {
 		return sdk.DecCoins{}, err
 	}
@@ -283,8 +283,8 @@ func (accum AccumulatorObject) deletePosition(positionName string) {
 	}
 }
 
-func (accum *AccumulatorObject) GetPositionSize(name string) (math.LegacyDec, error) {
-	position, err := GetPosition(accum, name)
+func (accum *AccumulatorObject) GetAccumPositionSize(name string) (math.LegacyDec, error) {
+	position, err := GetAccumPosition(accum, name)
 	if err != nil {
 		return math.LegacyDec{}, err
 	}
@@ -309,7 +309,7 @@ func (accum AccumulatorObject) GetValue() sdk.DecCoins {
 }
 
 func (accum *AccumulatorObject) ClaimRewards(positionName string) (sdk.Coins, sdk.DecCoins, error) {
-	position, err := GetPosition(accum, positionName)
+	position, err := GetAccumPosition(accum, positionName)
 	if err != nil {
 		return sdk.Coins{}, sdk.DecCoins{}, types.ErrNoPosition
 	}
@@ -331,7 +331,7 @@ func (accum AccumulatorObject) GetTotalShares() math.LegacyDec {
 }
 
 func (accum *AccumulatorObject) AddToUnclaimedRewards(positionName string, rewardsToAddTotal sdk.DecCoins) error {
-	position, err := GetPosition(accum, positionName)
+	position, err := GetAccumPosition(accum, positionName)
 	if err != nil {
 		return err
 	}
@@ -346,7 +346,7 @@ func (accum *AccumulatorObject) AddToUnclaimedRewards(positionName string, rewar
 }
 
 func initOrUpdatePosition(accum *AccumulatorObject, accumulatorValuePerShare sdk.DecCoins, index string, numShareUnits math.LegacyDec, unclaimedRewardsTotal sdk.DecCoins) {
-	position := types.Record{
+	position := types.AccumRecord{
 		NumShares:             numShareUnits,
 		AccumValuePerShare:    accumulatorValuePerShare,
 		UnclaimedRewardsTotal: unclaimedRewardsTotal,
@@ -361,25 +361,25 @@ func initOrUpdatePosition(accum *AccumulatorObject, accumulatorValuePerShare sdk
 	}
 }
 
-func GetPosition(accum *AccumulatorObject, name string) (types.Record, error) {
-	position := types.Record{}
+func GetAccumPosition(accum *AccumulatorObject, name string) (types.AccumRecord, error) {
+	position := types.AccumRecord{}
 	bz, err := accum.store.Get(types.FormatKeyAccumPositionPrefix(accum.name, name))
 	if err != nil {
-		return types.Record{}, err
+		return types.AccumRecord{}, err
 	}
 	if bz == nil {
-		return types.Record{}, types.ErrNoPosition
+		return types.AccumRecord{}, types.ErrNoPosition
 	}
 
 	err = proto.Unmarshal(bz, &position)
 	if err != nil {
-		return types.Record{}, err
+		return types.AccumRecord{}, err
 	}
 
 	return position, nil
 }
 
-func GetTotalRewards(accum *AccumulatorObject, position types.Record) sdk.DecCoins {
+func GetTotalRewards(accum *AccumulatorObject, position types.AccumRecord) sdk.DecCoins {
 	totalRewards := position.UnclaimedRewardsTotal
 
 	accumulatorRewards := accum.valuePerShare.Sub(position.AccumValuePerShare).MulDec(position.NumShares)

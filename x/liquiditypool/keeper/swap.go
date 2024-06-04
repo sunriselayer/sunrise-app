@@ -458,7 +458,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 
 	nextTickIter.Next()
 
-	liquidityNet = swapState.swapStrategy.SetLiquidityDeltaSign(liquidityNet)
+	liquidityNet = swapState.swapStrategy.GetLiquidityDeltaSign(liquidityNet)
 	swapState.liquidity.AddMut(liquidityNet)
 
 	swapState.tick = strategy.NextTickAfterCrossing(nextInitializedTick)
@@ -638,7 +638,7 @@ func (k Keeper) ComputeMaxInAmtGivenMaxTicksCrossed(
 
 			nextInitTickIter.Next()
 
-			liquidityNet = swapState.swapStrategy.SetLiquidityDeltaSign(liquidityNet)
+			liquidityNet = swapState.swapStrategy.GetLiquidityDeltaSign(liquidityNet)
 			swapState.liquidity.AddMut(liquidityNet)
 
 			swapState.tick = swapStrategy.NextTickAfterCrossing(nextInitializedTick)

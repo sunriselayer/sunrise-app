@@ -192,7 +192,7 @@ func calculateFeeGrowth(targetTick int64, ticksFeeGrowthOppositeDirectionOfLastT
 }
 
 func updatePositionToInitValuePlusGrowthOutside(accumulator *AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) error {
-	position, err := GetPosition(accumulator, positionKey)
+	position, err := GetAccumPosition(accumulator, positionKey)
 	if err != nil {
 		return err
 	}

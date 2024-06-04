@@ -102,7 +102,7 @@ func (s quoteForBaseStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, c
 	return iter
 }
 
-func (s quoteForBaseStrategy) SetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
+func (s quoteForBaseStrategy) GetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
 	return deltaLiquidity
 }
 

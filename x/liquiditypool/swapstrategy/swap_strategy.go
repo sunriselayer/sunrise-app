@@ -15,7 +15,7 @@ type SwapStrategy interface {
 	ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountRemainingIn math.LegacyDec) (sqrtPriceNext math.LegacyDec, amountInConsumed, amountOutComputed, feeChargeTotal math.LegacyDec)
 	ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountRemainingOut math.LegacyDec) (sqrtPriceNext math.LegacyDec, amountOutConsumed, amountInComputed, feeChargeTotal math.LegacyDec)
 	NextTickIterator(ctx sdk.Context, poolId uint64, tickIndex int64) dbm.Iterator
-	SetLiquidityDeltaSign(liquidityDelta math.LegacyDec) math.LegacyDec
+	GetLiquidityDeltaSign(liquidityDelta math.LegacyDec) math.LegacyDec
 	NextTickAfterCrossing(nextTick int64) (updatedNextTick int64)
 	ValidateSqrtPrice(sqrtPriceLimit math.LegacyDec, currentSqrtPrice math.LegacyDec) error
 	BaseForQuote() bool

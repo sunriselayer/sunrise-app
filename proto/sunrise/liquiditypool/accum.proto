@@ -17,7 +17,7 @@ message AccumulatorContent {
   ];
 }
 
-message Record {
+message AccumRecord {
   string num_shares = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

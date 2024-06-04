@@ -572,132 +572,132 @@ func (x *fastReflection_AccumulatorContent) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var _ protoreflect.List = (*_Record_2_list)(nil)
+var _ protoreflect.List = (*_AccumRecord_2_list)(nil)
 
-type _Record_2_list struct {
+type _AccumRecord_2_list struct {
 	list *[]*v1beta1.DecCoin
 }
 
-func (x *_Record_2_list) Len() int {
+func (x *_AccumRecord_2_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_Record_2_list) Get(i int) protoreflect.Value {
+func (x *_AccumRecord_2_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_Record_2_list) Set(i int, value protoreflect.Value) {
+func (x *_AccumRecord_2_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.DecCoin)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_Record_2_list) Append(value protoreflect.Value) {
+func (x *_AccumRecord_2_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.DecCoin)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_Record_2_list) AppendMutable() protoreflect.Value {
+func (x *_AccumRecord_2_list) AppendMutable() protoreflect.Value {
 	v := new(v1beta1.DecCoin)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Record_2_list) Truncate(n int) {
+func (x *_AccumRecord_2_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_Record_2_list) NewElement() protoreflect.Value {
+func (x *_AccumRecord_2_list) NewElement() protoreflect.Value {
 	v := new(v1beta1.DecCoin)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Record_2_list) IsValid() bool {
+func (x *_AccumRecord_2_list) IsValid() bool {
 	return x.list != nil
 }
 
-var _ protoreflect.List = (*_Record_3_list)(nil)
+var _ protoreflect.List = (*_AccumRecord_3_list)(nil)
 
-type _Record_3_list struct {
+type _AccumRecord_3_list struct {
 	list *[]*v1beta1.DecCoin
 }
 
-func (x *_Record_3_list) Len() int {
+func (x *_AccumRecord_3_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_Record_3_list) Get(i int) protoreflect.Value {
+func (x *_AccumRecord_3_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_Record_3_list) Set(i int, value protoreflect.Value) {
+func (x *_AccumRecord_3_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.DecCoin)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_Record_3_list) Append(value protoreflect.Value) {
+func (x *_AccumRecord_3_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.DecCoin)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_Record_3_list) AppendMutable() protoreflect.Value {
+func (x *_AccumRecord_3_list) AppendMutable() protoreflect.Value {
 	v := new(v1beta1.DecCoin)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Record_3_list) Truncate(n int) {
+func (x *_AccumRecord_3_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_Record_3_list) NewElement() protoreflect.Value {
+func (x *_AccumRecord_3_list) NewElement() protoreflect.Value {
 	v := new(v1beta1.DecCoin)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Record_3_list) IsValid() bool {
+func (x *_AccumRecord_3_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
-	md_Record                         protoreflect.MessageDescriptor
-	fd_Record_num_shares              protoreflect.FieldDescriptor
-	fd_Record_accum_value_per_share   protoreflect.FieldDescriptor
-	fd_Record_unclaimed_rewards_total protoreflect.FieldDescriptor
+	md_AccumRecord                         protoreflect.MessageDescriptor
+	fd_AccumRecord_num_shares              protoreflect.FieldDescriptor
+	fd_AccumRecord_accum_value_per_share   protoreflect.FieldDescriptor
+	fd_AccumRecord_unclaimed_rewards_total protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_sunrise_liquiditypool_accum_proto_init()
-	md_Record = File_sunrise_liquiditypool_accum_proto.Messages().ByName("Record")
-	fd_Record_num_shares = md_Record.Fields().ByName("num_shares")
-	fd_Record_accum_value_per_share = md_Record.Fields().ByName("accum_value_per_share")
-	fd_Record_unclaimed_rewards_total = md_Record.Fields().ByName("unclaimed_rewards_total")
+	md_AccumRecord = File_sunrise_liquiditypool_accum_proto.Messages().ByName("AccumRecord")
+	fd_AccumRecord_num_shares = md_AccumRecord.Fields().ByName("num_shares")
+	fd_AccumRecord_accum_value_per_share = md_AccumRecord.Fields().ByName("accum_value_per_share")
+	fd_AccumRecord_unclaimed_rewards_total = md_AccumRecord.Fields().ByName("unclaimed_rewards_total")
 }
 
-var _ protoreflect.Message = (*fastReflection_Record)(nil)
+var _ protoreflect.Message = (*fastReflection_AccumRecord)(nil)
 
-type fastReflection_Record Record
+type fastReflection_AccumRecord AccumRecord
 
-func (x *Record) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_Record)(x)
+func (x *AccumRecord) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_AccumRecord)(x)
 }
 
-func (x *Record) slowProtoReflect() protoreflect.Message {
+func (x *AccumRecord) slowProtoReflect() protoreflect.Message {
 	mi := &file_sunrise_liquiditypool_accum_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -709,43 +709,43 @@ func (x *Record) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_Record_messageType fastReflection_Record_messageType
-var _ protoreflect.MessageType = fastReflection_Record_messageType{}
+var _fastReflection_AccumRecord_messageType fastReflection_AccumRecord_messageType
+var _ protoreflect.MessageType = fastReflection_AccumRecord_messageType{}
 
-type fastReflection_Record_messageType struct{}
+type fastReflection_AccumRecord_messageType struct{}
 
-func (x fastReflection_Record_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_Record)(nil)
+func (x fastReflection_AccumRecord_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_AccumRecord)(nil)
 }
-func (x fastReflection_Record_messageType) New() protoreflect.Message {
-	return new(fastReflection_Record)
+func (x fastReflection_AccumRecord_messageType) New() protoreflect.Message {
+	return new(fastReflection_AccumRecord)
 }
-func (x fastReflection_Record_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_Record
+func (x fastReflection_AccumRecord_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_AccumRecord
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_Record) Descriptor() protoreflect.MessageDescriptor {
-	return md_Record
+func (x *fastReflection_AccumRecord) Descriptor() protoreflect.MessageDescriptor {
+	return md_AccumRecord
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_Record) Type() protoreflect.MessageType {
-	return _fastReflection_Record_messageType
+func (x *fastReflection_AccumRecord) Type() protoreflect.MessageType {
+	return _fastReflection_AccumRecord_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_Record) New() protoreflect.Message {
-	return new(fastReflection_Record)
+func (x *fastReflection_AccumRecord) New() protoreflect.Message {
+	return new(fastReflection_AccumRecord)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_Record) Interface() protoreflect.ProtoMessage {
-	return (*Record)(x)
+func (x *fastReflection_AccumRecord) Interface() protoreflect.ProtoMessage {
+	return (*AccumRecord)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -753,22 +753,22 @@ func (x *fastReflection_Record) Interface() protoreflect.ProtoMessage {
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_Record) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_AccumRecord) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.NumShares != "" {
 		value := protoreflect.ValueOfString(x.NumShares)
-		if !f(fd_Record_num_shares, value) {
+		if !f(fd_AccumRecord_num_shares, value) {
 			return
 		}
 	}
 	if len(x.AccumValuePerShare) != 0 {
-		value := protoreflect.ValueOfList(&_Record_2_list{list: &x.AccumValuePerShare})
-		if !f(fd_Record_accum_value_per_share, value) {
+		value := protoreflect.ValueOfList(&_AccumRecord_2_list{list: &x.AccumValuePerShare})
+		if !f(fd_AccumRecord_accum_value_per_share, value) {
 			return
 		}
 	}
 	if len(x.UnclaimedRewardsTotal) != 0 {
-		value := protoreflect.ValueOfList(&_Record_3_list{list: &x.UnclaimedRewardsTotal})
-		if !f(fd_Record_unclaimed_rewards_total, value) {
+		value := protoreflect.ValueOfList(&_AccumRecord_3_list{list: &x.UnclaimedRewardsTotal})
+		if !f(fd_AccumRecord_unclaimed_rewards_total, value) {
 			return
 		}
 	}
@@ -785,19 +785,19 @@ func (x *fastReflection_Record) Range(f func(protoreflect.FieldDescriptor, proto
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_Record) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_AccumRecord) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "sunrise.liquiditypool.Record.num_shares":
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
 		return x.NumShares != ""
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		return len(x.AccumValuePerShare) != 0
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		return len(x.UnclaimedRewardsTotal) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -807,19 +807,19 @@ func (x *fastReflection_Record) Has(fd protoreflect.FieldDescriptor) bool {
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Record) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_AccumRecord) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "sunrise.liquiditypool.Record.num_shares":
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
 		x.NumShares = ""
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		x.AccumValuePerShare = nil
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		x.UnclaimedRewardsTotal = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -829,28 +829,28 @@ func (x *fastReflection_Record) Clear(fd protoreflect.FieldDescriptor) {
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_Record) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_AccumRecord) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "sunrise.liquiditypool.Record.num_shares":
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
 		value := x.NumShares
 		return protoreflect.ValueOfString(value)
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		if len(x.AccumValuePerShare) == 0 {
-			return protoreflect.ValueOfList(&_Record_2_list{})
+			return protoreflect.ValueOfList(&_AccumRecord_2_list{})
 		}
-		listValue := &_Record_2_list{list: &x.AccumValuePerShare}
+		listValue := &_AccumRecord_2_list{list: &x.AccumValuePerShare}
 		return protoreflect.ValueOfList(listValue)
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		if len(x.UnclaimedRewardsTotal) == 0 {
-			return protoreflect.ValueOfList(&_Record_3_list{})
+			return protoreflect.ValueOfList(&_AccumRecord_3_list{})
 		}
-		listValue := &_Record_3_list{list: &x.UnclaimedRewardsTotal}
+		listValue := &_AccumRecord_3_list{list: &x.UnclaimedRewardsTotal}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -864,23 +864,23 @@ func (x *fastReflection_Record) Get(descriptor protoreflect.FieldDescriptor) pro
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Record) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_AccumRecord) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "sunrise.liquiditypool.Record.num_shares":
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
 		x.NumShares = value.Interface().(string)
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		lv := value.List()
-		clv := lv.(*_Record_2_list)
+		clv := lv.(*_AccumRecord_2_list)
 		x.AccumValuePerShare = *clv.list
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		lv := value.List()
-		clv := lv.(*_Record_3_list)
+		clv := lv.(*_AccumRecord_3_list)
 		x.UnclaimedRewardsTotal = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -894,58 +894,58 @@ func (x *fastReflection_Record) Set(fd protoreflect.FieldDescriptor, value proto
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Record) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_AccumRecord) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		if x.AccumValuePerShare == nil {
 			x.AccumValuePerShare = []*v1beta1.DecCoin{}
 		}
-		value := &_Record_2_list{list: &x.AccumValuePerShare}
+		value := &_AccumRecord_2_list{list: &x.AccumValuePerShare}
 		return protoreflect.ValueOfList(value)
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		if x.UnclaimedRewardsTotal == nil {
 			x.UnclaimedRewardsTotal = []*v1beta1.DecCoin{}
 		}
-		value := &_Record_3_list{list: &x.UnclaimedRewardsTotal}
+		value := &_AccumRecord_3_list{list: &x.UnclaimedRewardsTotal}
 		return protoreflect.ValueOfList(value)
-	case "sunrise.liquiditypool.Record.num_shares":
-		panic(fmt.Errorf("field num_shares of message sunrise.liquiditypool.Record is not mutable"))
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
+		panic(fmt.Errorf("field num_shares of message sunrise.liquiditypool.AccumRecord is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_Record) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_AccumRecord) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "sunrise.liquiditypool.Record.num_shares":
+	case "sunrise.liquiditypool.AccumRecord.num_shares":
 		return protoreflect.ValueOfString("")
-	case "sunrise.liquiditypool.Record.accum_value_per_share":
+	case "sunrise.liquiditypool.AccumRecord.accum_value_per_share":
 		list := []*v1beta1.DecCoin{}
-		return protoreflect.ValueOfList(&_Record_2_list{list: &list})
-	case "sunrise.liquiditypool.Record.unclaimed_rewards_total":
+		return protoreflect.ValueOfList(&_AccumRecord_2_list{list: &list})
+	case "sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total":
 		list := []*v1beta1.DecCoin{}
-		return protoreflect.ValueOfList(&_Record_3_list{list: &list})
+		return protoreflect.ValueOfList(&_AccumRecord_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.Record"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: sunrise.liquiditypool.AccumRecord"))
 		}
-		panic(fmt.Errorf("message sunrise.liquiditypool.Record does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message sunrise.liquiditypool.AccumRecord does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_Record) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_AccumRecord) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in sunrise.liquiditypool.Record", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in sunrise.liquiditypool.AccumRecord", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -953,7 +953,7 @@ func (x *fastReflection_Record) WhichOneof(d protoreflect.OneofDescriptor) proto
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_Record) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_AccumRecord) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -964,7 +964,7 @@ func (x *fastReflection_Record) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_Record) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_AccumRecord) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -976,7 +976,7 @@ func (x *fastReflection_Record) SetUnknown(fields protoreflect.RawFields) {
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_Record) IsValid() bool {
+func (x *fastReflection_AccumRecord) IsValid() bool {
 	return x != nil
 }
 
@@ -986,9 +986,9 @@ func (x *fastReflection_Record) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_Record) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_AccumRecord) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*Record)
+		x := input.Message.Interface().(*AccumRecord)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1026,7 +1026,7 @@ func (x *fastReflection_Record) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*Record)
+		x := input.Message.Interface().(*AccumRecord)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1095,7 +1095,7 @@ func (x *fastReflection_Record) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*Record)
+		x := input.Message.Interface().(*AccumRecord)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1127,10 +1127,10 @@ func (x *fastReflection_Record) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: Record: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: AccumRecord: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: Record: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: AccumRecord: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -1324,7 +1324,7 @@ func (x *AccumulatorContent) GetTotalShares() string {
 	return ""
 }
 
-type Record struct {
+type AccumRecord struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -1334,8 +1334,8 @@ type Record struct {
 	UnclaimedRewardsTotal []*v1beta1.DecCoin `protobuf:"bytes,3,rep,name=unclaimed_rewards_total,json=unclaimedRewardsTotal,proto3" json:"unclaimed_rewards_total,omitempty"`
 }
 
-func (x *Record) Reset() {
-	*x = Record{}
+func (x *AccumRecord) Reset() {
+	*x = AccumRecord{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_sunrise_liquiditypool_accum_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1343,32 +1343,32 @@ func (x *Record) Reset() {
 	}
 }
 
-func (x *Record) String() string {
+func (x *AccumRecord) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Record) ProtoMessage() {}
+func (*AccumRecord) ProtoMessage() {}
 
-// Deprecated: Use Record.ProtoReflect.Descriptor instead.
-func (*Record) Descriptor() ([]byte, []int) {
+// Deprecated: Use AccumRecord.ProtoReflect.Descriptor instead.
+func (*AccumRecord) Descriptor() ([]byte, []int) {
 	return file_sunrise_liquiditypool_accum_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Record) GetNumShares() string {
+func (x *AccumRecord) GetNumShares() string {
 	if x != nil {
 		return x.NumShares
 	}
 	return ""
 }
 
-func (x *Record) GetAccumValuePerShare() []*v1beta1.DecCoin {
+func (x *AccumRecord) GetAccumValuePerShare() []*v1beta1.DecCoin {
 	if x != nil {
 		return x.AccumValuePerShare
 	}
 	return nil
 }
 
-func (x *Record) GetUnclaimedRewardsTotal() []*v1beta1.DecCoin {
+func (x *AccumRecord) GetUnclaimedRewardsTotal() []*v1beta1.DecCoin {
 	if x != nil {
 		return x.UnclaimedRewardsTotal
 	}
@@ -1398,42 +1398,42 @@ var file_sunrise_liquiditypool_accum_proto_rawDesc = []byte{
 	0x09, 0x42, 0x23, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x1b, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
 	0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x4c, 0x65, 0x67,
 	0x61, 0x63, 0x79, 0x44, 0x65, 0x63, 0x52, 0x0b, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x53, 0x68, 0x61,
-	0x72, 0x65, 0x73, 0x22, 0xdf, 0x02, 0x0a, 0x06, 0x52, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x12, 0x42,
-	0x0a, 0x0a, 0x6e, 0x75, 0x6d, 0x5f, 0x73, 0x68, 0x61, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x23, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f, 0x1b, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61, 0x74, 0x68, 0x2e, 0x4c, 0x65,
-	0x67, 0x61, 0x63, 0x79, 0x44, 0x65, 0x63, 0x52, 0x09, 0x6e, 0x75, 0x6d, 0x53, 0x68, 0x61, 0x72,
-	0x65, 0x73, 0x12, 0x84, 0x01, 0x0a, 0x15, 0x61, 0x63, 0x63, 0x75, 0x6d, 0x5f, 0x76, 0x61, 0x6c,
-	0x75, 0x65, 0x5f, 0x70, 0x65, 0x72, 0x5f, 0x73, 0x68, 0x61, 0x72, 0x65, 0x18, 0x02, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e,
-	0x42, 0x33, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x63,
-	0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x12, 0x61, 0x63, 0x63, 0x75, 0x6d, 0x56, 0x61, 0x6c, 0x75,
-	0x65, 0x50, 0x65, 0x72, 0x53, 0x68, 0x61, 0x72, 0x65, 0x12, 0x89, 0x01, 0x0a, 0x17, 0x75, 0x6e,
-	0x63, 0x6c, 0x61, 0x69, 0x6d, 0x65, 0x64, 0x5f, 0x72, 0x65, 0x77, 0x61, 0x72, 0x64, 0x73, 0x5f,
-	0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x33, 0xc8, 0xde, 0x1f, 0x00, 0xaa,
-	0xdf, 0x1f, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f,
-	0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x15,
-	0x75, 0x6e, 0x63, 0x6c, 0x61, 0x69, 0x6d, 0x65, 0x64, 0x52, 0x65, 0x77, 0x61, 0x72, 0x64, 0x73,
-	0x54, 0x6f, 0x74, 0x61, 0x6c, 0x42, 0xc4, 0x01, 0x0a, 0x19, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x75,
-	0x6e, 0x72, 0x69, 0x73, 0x65, 0x2e, 0x6c, 0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70,
-	0x6f, 0x6f, 0x6c, 0x42, 0x0a, 0x41, 0x63, 0x63, 0x75, 0x6d, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50,
-	0x01, 0x5a, 0x26, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x73, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x2f, 0x6c, 0x69, 0x71, 0x75,
-	0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0xa2, 0x02, 0x03, 0x53, 0x4c, 0x58, 0xaa,
-	0x02, 0x15, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x2e, 0x4c, 0x69, 0x71, 0x75, 0x69, 0x64,
-	0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0xca, 0x02, 0x15, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73,
-	0x65, 0x5c, 0x4c, 0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0xe2,
-	0x02, 0x21, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x5c, 0x4c, 0x69, 0x71, 0x75, 0x69, 0x64,
-	0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64,
-	0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x3a, 0x3a, 0x4c,
-	0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x72, 0x65, 0x73, 0x22, 0xe4, 0x02, 0x0a, 0x0b, 0x41, 0x63, 0x63, 0x75, 0x6d, 0x52, 0x65, 0x63,
+	0x6f, 0x72, 0x64, 0x12, 0x42, 0x0a, 0x0a, 0x6e, 0x75, 0x6d, 0x5f, 0x73, 0x68, 0x61, 0x72, 0x65,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x23, 0xc8, 0xde, 0x1f, 0x00, 0xda, 0xde, 0x1f,
+	0x1b, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x6d, 0x61,
+	0x74, 0x68, 0x2e, 0x4c, 0x65, 0x67, 0x61, 0x63, 0x79, 0x44, 0x65, 0x63, 0x52, 0x09, 0x6e, 0x75,
+	0x6d, 0x53, 0x68, 0x61, 0x72, 0x65, 0x73, 0x12, 0x84, 0x01, 0x0a, 0x15, 0x61, 0x63, 0x63, 0x75,
+	0x6d, 0x5f, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x5f, 0x70, 0x65, 0x72, 0x5f, 0x73, 0x68, 0x61, 0x72,
+	0x65, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65,
+	0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x33, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x2b, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65,
+	0x73, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x12, 0x61, 0x63, 0x63, 0x75,
+	0x6d, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x50, 0x65, 0x72, 0x53, 0x68, 0x61, 0x72, 0x65, 0x12, 0x89,
+	0x01, 0x0a, 0x17, 0x75, 0x6e, 0x63, 0x6c, 0x61, 0x69, 0x6d, 0x65, 0x64, 0x5f, 0x72, 0x65, 0x77,
+	0x61, 0x72, 0x64, 0x73, 0x5f, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x33,
+	0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+	0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x63, 0x43, 0x6f,
+	0x69, 0x6e, 0x73, 0x52, 0x15, 0x75, 0x6e, 0x63, 0x6c, 0x61, 0x69, 0x6d, 0x65, 0x64, 0x52, 0x65,
+	0x77, 0x61, 0x72, 0x64, 0x73, 0x54, 0x6f, 0x74, 0x61, 0x6c, 0x42, 0xc4, 0x01, 0x0a, 0x19, 0x63,
+	0x6f, 0x6d, 0x2e, 0x73, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x2e, 0x6c, 0x69, 0x71, 0x75, 0x69,
+	0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0x42, 0x0a, 0x41, 0x63, 0x63, 0x75, 0x6d, 0x50,
+	0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x26, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64,
+	0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65,
+	0x2f, 0x6c, 0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0xa2, 0x02,
+	0x03, 0x53, 0x4c, 0x58, 0xaa, 0x02, 0x15, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x2e, 0x4c,
+	0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0xca, 0x02, 0x15, 0x53,
+	0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x5c, 0x4c, 0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79,
+	0x70, 0x6f, 0x6f, 0x6c, 0xe2, 0x02, 0x21, 0x53, 0x75, 0x6e, 0x72, 0x69, 0x73, 0x65, 0x5c, 0x4c,
+	0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f, 0x6c, 0x5c, 0x47, 0x50, 0x42,
+	0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x53, 0x75, 0x6e, 0x72, 0x69,
+	0x73, 0x65, 0x3a, 0x3a, 0x4c, 0x69, 0x71, 0x75, 0x69, 0x64, 0x69, 0x74, 0x79, 0x70, 0x6f, 0x6f,
+	0x6c, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1451,13 +1451,13 @@ func file_sunrise_liquiditypool_accum_proto_rawDescGZIP() []byte {
 var file_sunrise_liquiditypool_accum_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sunrise_liquiditypool_accum_proto_goTypes = []interface{}{
 	(*AccumulatorContent)(nil), // 0: sunrise.liquiditypool.AccumulatorContent
-	(*Record)(nil),             // 1: sunrise.liquiditypool.Record
+	(*AccumRecord)(nil),        // 1: sunrise.liquiditypool.AccumRecord
 	(*v1beta1.DecCoin)(nil),    // 2: cosmos.base.v1beta1.DecCoin
 }
 var file_sunrise_liquiditypool_accum_proto_depIdxs = []int32{
 	2, // 0: sunrise.liquiditypool.AccumulatorContent.accum_value:type_name -> cosmos.base.v1beta1.DecCoin
-	2, // 1: sunrise.liquiditypool.Record.accum_value_per_share:type_name -> cosmos.base.v1beta1.DecCoin
-	2, // 2: sunrise.liquiditypool.Record.unclaimed_rewards_total:type_name -> cosmos.base.v1beta1.DecCoin
+	2, // 1: sunrise.liquiditypool.AccumRecord.accum_value_per_share:type_name -> cosmos.base.v1beta1.DecCoin
+	2, // 2: sunrise.liquiditypool.AccumRecord.unclaimed_rewards_total:type_name -> cosmos.base.v1beta1.DecCoin
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -1484,7 +1484,7 @@ func file_sunrise_liquiditypool_accum_proto_init() {
 			}
 		}
 		file_sunrise_liquiditypool_accum_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Record); i {
+			switch v := v.(*AccumRecord); i {
 			case 0:
 				return &v.state
 			case 1:
