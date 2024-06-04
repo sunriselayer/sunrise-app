@@ -10,58 +10,6 @@ import (
 	"github.com/sunriselayer/sunrise/x/swap/types"
 )
 
-func (k Keeper) RouteExactAmountIn(
-	ctx sdk.Context,
-	sender sdk.AccAddress,
-	route []types.Route,
-	tokenIn sdk.Coin,
-	tokenOutMinAmount math.Int,
-) (tokenOutAmount math.Int, err error) {
-	for i, routeStep := range route {
-		_outMinAmount := math.NewInt(1)
-		if len(route)-1 == i {
-			_outMinAmount = tokenOutMinAmount
-		}
-
-		switch strategy := routeStep.Strategy.(type) {
-		case *types.Route_Pool:
-			tokenOutAmount, err = k.SwapExactAmountIn(ctx, sender, strategy.Pool.PoolId, tokenIn, routeStep.DenomOut, _outMinAmount)
-			if err != nil {
-				return math.Int{}, err
-			}
-
-			tokenIn = sdk.NewCoin(routeStep.DenomOut, tokenOutAmount)
-		case *types.Route_Series:
-			panic("not implemented strategy")
-		case *types.Route_Parallel:
-			panic("not implemented strategy")
-		}
-	}
-	return tokenOutAmount, nil
-}
-
-func (k Keeper) SwapExactAmountIn(
-	ctx sdk.Context,
-	sender sdk.AccAddress,
-	poolId uint64,
-	tokenIn sdk.Coin,
-	tokenOutDenom string,
-	tokenOutMinAmount math.Int,
-) (tokenOutAmount math.Int, err error) {
-	pool, found := k.liquidityPoolKeeper.GetPool(ctx, poolId)
-	if !found {
-		return math.Int{}, lptypes.ErrPoolNotFound
-	}
-
-	// routeStep to the pool-specific SwapExactAmountIn implementation.
-	tokenOutAmount, err = k.liquidityPoolKeeper.SwapExactAmountIn(ctx, sender, pool, tokenIn, tokenOutDenom)
-	if err != nil {
-		return math.Int{}, err
-	}
-
-	return tokenOutAmount, nil
-}
-
 func (k Keeper) SwapExactAmountInNoTakerFee(
 	ctx sdk.Context,
 	sender sdk.AccAddress,
