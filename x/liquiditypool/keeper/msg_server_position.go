@@ -322,7 +322,7 @@ func (k Keeper) UpdatePosition(ctx sdk.Context, poolId uint64, owner sdk.AccAddr
 	k.SetPool(ctx, pool)
 
 	// update fee accumulator
-	if err := k.SetAccumPositionFeeAccumulator(ctx, poolId, lowerTick, upperTick, positionId, liquidityDelta); err != nil {
+	if err := k.SetAccumulatorPositionFeeAccumulator(ctx, poolId, lowerTick, upperTick, positionId, liquidityDelta); err != nil {
 		return math.Int{}, math.Int{}, false, false, err
 	}
 

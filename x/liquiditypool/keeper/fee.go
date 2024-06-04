@@ -23,7 +23,7 @@ func (k Keeper) GetFeeAccumulator(ctx context.Context, poolId uint64) (types.Acc
 	return k.GetAccumulator(ctx, types.KeyFeePoolAccumulator(poolId))
 }
 
-func (k Keeper) SetAccumPositionFeeAccumulator(ctx sdk.Context, poolId uint64, lowerTick, upperTick int64, positionId uint64, liquidityDelta math.LegacyDec) error {
+func (k Keeper) SetAccumulatorPositionFeeAccumulator(ctx sdk.Context, poolId uint64, lowerTick, upperTick int64, positionId uint64, liquidityDelta math.LegacyDec) error {
 	feeAccumulator, err := k.GetFeeAccumulator(ctx, poolId)
 	if err != nil {
 		return err
@@ -192,7 +192,7 @@ func calculateFeeGrowth(targetTick int64, ticksFeeGrowthOppositeDirectionOfLastT
 }
 
 func (k Keeper) updatePositionToInitValuePlusGrowthOutside(ctx context.Context, accumName, positionKey string, growthOutside sdk.DecCoins) error {
-	position, err := k.GetAccumPosition(ctx, accumName, positionKey)
+	position, err := k.GetAccumulatorPosition(ctx, accumName, positionKey)
 	if err != nil {
 		return err
 	}

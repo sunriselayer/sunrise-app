@@ -45,7 +45,7 @@ const (
 	FeePositionAccumulatorPrefix = "FeePositionAccumulator/value/"
 	KeyFeePoolAccumulatorPrefix  = "FeePoolAccumulator/value/"
 	KeyAccumPrefix               = "Accumulator/Acc/value/"
-	KeyAccumPositionPrefix       = "Accumulator/Pos/value"
+	KeyAccumulatorPositionPrefix = "Accumulator/Pos/value"
 	KeySeparator                 = "||"
 )
 
@@ -103,6 +103,6 @@ func FormatKeyAccumPrefix(accumName string) []byte {
 	return []byte(fmt.Sprintf(KeyAccumPrefix+"%s", accumName))
 }
 
-func FormatKeyAccumPositionPrefix(accumName, name string) []byte {
-	return []byte(fmt.Sprintf(KeyAccumPositionPrefix+"%s"+KeySeparator+"%s", accumName, name))
+func FormatKeyAccumulatorPositionPrefix(accumName, name string) []byte {
+	return []byte(fmt.Sprintf(KeyAccumulatorPositionPrefix+"%s"+KeySeparator+"%s", accumName, name))
 }
