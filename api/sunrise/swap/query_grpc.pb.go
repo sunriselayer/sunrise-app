@@ -19,7 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Params_FullMethodName = "/sunrise.swap.Query/Params"
+	Query_Params_FullMethodName                    = "/sunrise.swap.Query/Params"
+	Query_IncomingInFlightPacket_FullMethodName    = "/sunrise.swap.Query/IncomingInFlightPacket"
+	Query_IncomingInFlightPacketAll_FullMethodName = "/sunrise.swap.Query/IncomingInFlightPacketAll"
+	Query_OutgoingInFlightPacket_FullMethodName    = "/sunrise.swap.Query/OutgoingInFlightPacket"
+	Query_OutgoingInFlightPacketAll_FullMethodName = "/sunrise.swap.Query/OutgoingInFlightPacketAll"
 )
 
 // QueryClient is the client API for Query service.
@@ -28,6 +32,12 @@ const (
 type QueryClient interface {
 	// Parameters queries the parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Queries a list of IncomingInFlightPacket items.
+	IncomingInFlightPacket(ctx context.Context, in *QueryGetIncomingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryGetIncomingInFlightPacketResponse, error)
+	IncomingInFlightPacketAll(ctx context.Context, in *QueryAllIncomingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryAllIncomingInFlightPacketResponse, error)
+	// Queries a list of OutgoingInFlightPacket items.
+	OutgoingInFlightPacket(ctx context.Context, in *QueryGetOutgoingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryGetOutgoingInFlightPacketResponse, error)
+	OutgoingInFlightPacketAll(ctx context.Context, in *QueryAllOutgoingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryAllOutgoingInFlightPacketResponse, error)
 }
 
 type queryClient struct {
@@ -47,12 +57,54 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) IncomingInFlightPacket(ctx context.Context, in *QueryGetIncomingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryGetIncomingInFlightPacketResponse, error) {
+	out := new(QueryGetIncomingInFlightPacketResponse)
+	err := c.cc.Invoke(ctx, Query_IncomingInFlightPacket_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) IncomingInFlightPacketAll(ctx context.Context, in *QueryAllIncomingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryAllIncomingInFlightPacketResponse, error) {
+	out := new(QueryAllIncomingInFlightPacketResponse)
+	err := c.cc.Invoke(ctx, Query_IncomingInFlightPacketAll_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) OutgoingInFlightPacket(ctx context.Context, in *QueryGetOutgoingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryGetOutgoingInFlightPacketResponse, error) {
+	out := new(QueryGetOutgoingInFlightPacketResponse)
+	err := c.cc.Invoke(ctx, Query_OutgoingInFlightPacket_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) OutgoingInFlightPacketAll(ctx context.Context, in *QueryAllOutgoingInFlightPacketRequest, opts ...grpc.CallOption) (*QueryAllOutgoingInFlightPacketResponse, error) {
+	out := new(QueryAllOutgoingInFlightPacketResponse)
+	err := c.cc.Invoke(ctx, Query_OutgoingInFlightPacketAll_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
 	// Parameters queries the parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Queries a list of IncomingInFlightPacket items.
+	IncomingInFlightPacket(context.Context, *QueryGetIncomingInFlightPacketRequest) (*QueryGetIncomingInFlightPacketResponse, error)
+	IncomingInFlightPacketAll(context.Context, *QueryAllIncomingInFlightPacketRequest) (*QueryAllIncomingInFlightPacketResponse, error)
+	// Queries a list of OutgoingInFlightPacket items.
+	OutgoingInFlightPacket(context.Context, *QueryGetOutgoingInFlightPacketRequest) (*QueryGetOutgoingInFlightPacketResponse, error)
+	OutgoingInFlightPacketAll(context.Context, *QueryAllOutgoingInFlightPacketRequest) (*QueryAllOutgoingInFlightPacketResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -62,6 +114,18 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
+func (UnimplementedQueryServer) IncomingInFlightPacket(context.Context, *QueryGetIncomingInFlightPacketRequest) (*QueryGetIncomingInFlightPacketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IncomingInFlightPacket not implemented")
+}
+func (UnimplementedQueryServer) IncomingInFlightPacketAll(context.Context, *QueryAllIncomingInFlightPacketRequest) (*QueryAllIncomingInFlightPacketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IncomingInFlightPacketAll not implemented")
+}
+func (UnimplementedQueryServer) OutgoingInFlightPacket(context.Context, *QueryGetOutgoingInFlightPacketRequest) (*QueryGetOutgoingInFlightPacketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OutgoingInFlightPacket not implemented")
+}
+func (UnimplementedQueryServer) OutgoingInFlightPacketAll(context.Context, *QueryAllOutgoingInFlightPacketRequest) (*QueryAllOutgoingInFlightPacketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OutgoingInFlightPacketAll not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -94,6 +158,78 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_IncomingInFlightPacket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGetIncomingInFlightPacketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).IncomingInFlightPacket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_IncomingInFlightPacket_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).IncomingInFlightPacket(ctx, req.(*QueryGetIncomingInFlightPacketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_IncomingInFlightPacketAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllIncomingInFlightPacketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).IncomingInFlightPacketAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_IncomingInFlightPacketAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).IncomingInFlightPacketAll(ctx, req.(*QueryAllIncomingInFlightPacketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_OutgoingInFlightPacket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGetOutgoingInFlightPacketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).OutgoingInFlightPacket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_OutgoingInFlightPacket_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).OutgoingInFlightPacket(ctx, req.(*QueryGetOutgoingInFlightPacketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_OutgoingInFlightPacketAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllOutgoingInFlightPacketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).OutgoingInFlightPacketAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_OutgoingInFlightPacketAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).OutgoingInFlightPacketAll(ctx, req.(*QueryAllOutgoingInFlightPacketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +240,22 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
+		},
+		{
+			MethodName: "IncomingInFlightPacket",
+			Handler:    _Query_IncomingInFlightPacket_Handler,
+		},
+		{
+			MethodName: "IncomingInFlightPacketAll",
+			Handler:    _Query_IncomingInFlightPacketAll_Handler,
+		},
+		{
+			MethodName: "OutgoingInFlightPacket",
+			Handler:    _Query_OutgoingInFlightPacket_Handler,
+		},
+		{
+			MethodName: "OutgoingInFlightPacketAll",
+			Handler:    _Query_OutgoingInFlightPacketAll_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

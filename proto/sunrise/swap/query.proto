@@ -1,4 +1,5 @@
 syntax = "proto3";
+
 package sunrise.swap;
 
 import "amino/amino.proto";
@@ -6,25 +7,83 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "sunrise/swap/params.proto";
+import "sunrise/swap/in_flight_packet.proto";
 
 option go_package = "github.com/sunriselayer/sunrise/x/swap/types";
 
 // Query defines the gRPC querier service.
 service Query {
+  
   // Parameters queries the parameters of the module.
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+  rpc Params (QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/sunriselayer/sunrise/swap/params";
+  
   }
-}
+  
+  // Queries a list of IncomingInFlightPacket items.
+  rpc IncomingInFlightPacket    (QueryGetIncomingInFlightPacketRequest) returns (QueryGetIncomingInFlightPacketResponse) {
+    option (google.api.http).get = "/sunriselayer/sunrise/swap/ack_waiting_packet/incoming/{src_port_id}/{src_channel_id}/{sequence}";
+  
+  }
+  rpc IncomingInFlightPacketAll (QueryAllIncomingInFlightPacketRequest) returns (QueryAllIncomingInFlightPacketResponse) {
+    option (google.api.http).get = "/sunriselayer/sunrise/swap/ack_waiting_packet/incoming";
+  }
 
+  // Queries a list of OutgoingInFlightPacket items.
+  rpc OutgoingInFlightPacket    (QueryGetOutgoingInFlightPacketRequest) returns (QueryGetOutgoingInFlightPacketResponse) {
+    option (google.api.http).get = "/sunriselayer/sunrise/swap/in_flight_packet/outgoing/{src_port_id}/{src_channel_id}/{sequence}";
+  
+  }
+  rpc OutgoingInFlightPacketAll (QueryAllOutgoingInFlightPacketRequest) returns (QueryAllOutgoingInFlightPacketResponse) {
+    option (google.api.http).get = "/sunriselayer/sunrise/swap/in_flight_packet/outgoing";
+  
+  }
+  
+}
 // QueryParamsRequest is request type for the Query/Params RPC method.
 message QueryParamsRequest {}
 
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
+  
   // params holds all the parameters of this module.
-  Params params = 1 [
-    (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true
-  ];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}
+
+message QueryGetIncomingInFlightPacketRequest {
+  string src_port_id    = 1;
+  string src_channel_id = 2;
+  uint64 sequence       = 3;
+}
+
+message QueryGetIncomingInFlightPacketResponse {
+  IncomingInFlightPacket incomingInFlightPacket = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllIncomingInFlightPacketRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllIncomingInFlightPacketResponse {
+  repeated IncomingInFlightPacket                 incomingInFlightPacket = 1 [(gogoproto.nullable) = false];
+           cosmos.base.query.v1beta1.PageResponse pagination       = 2;
+}
+
+message QueryGetOutgoingInFlightPacketRequest {
+  string src_port_id    = 1;
+  string src_channel_id = 2;
+  uint64 sequence       = 3;
+}
+
+message QueryGetOutgoingInFlightPacketResponse {
+  OutgoingInFlightPacket outgoingInFlightPacket = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllOutgoingInFlightPacketRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllOutgoingInFlightPacketResponse {
+  repeated OutgoingInFlightPacket                 outgoingInFlightPacket = 1 [(gogoproto.nullable) = false];
+           cosmos.base.query.v1beta1.PageResponse pagination     = 2;
 }

@@ -95,15 +95,15 @@ func (x *fastReflection_Params) Interface() protoreflect.ProtoMessage {
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.DenomGovToken != "" {
-		value := protoreflect.ValueOfString(x.DenomGovToken)
-		if !f(fd_Params_denom_gov_token, value) {
+	if x.BondDenom != "" {
+		value := protoreflect.ValueOfString(x.BondDenom)
+		if !f(fd_Params_bond_denom, value) {
 			return
 		}
 	}
-	if x.DenomFeeToken != "" {
-		value := protoreflect.ValueOfString(x.DenomFeeToken)
-		if !f(fd_Params_denom_fee_token, value) {
+	if x.FeeDenom != "" {
+		value := protoreflect.ValueOfString(x.FeeDenom)
+		if !f(fd_Params_fee_denom, value) {
 			return
 		}
 	}
@@ -172,11 +172,11 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "sunrise.tokenconverter.Params.denom_gov_token":
-		value := x.DenomGovToken
+	case "sunrise.tokenconverter.Params.bond_denom":
+		value := x.BondDenom
 		return protoreflect.ValueOfString(value)
-	case "sunrise.tokenconverter.Params.denom_fee_token":
-		value := x.DenomFeeToken
+	case "sunrise.tokenconverter.Params.fee_denom":
+		value := x.FeeDenom
 		return protoreflect.ValueOfString(value)
 	case "sunrise.tokenconverter.Params.max_supply_fee_token":
 		value := x.MaxSupplyFeeToken
@@ -246,9 +246,9 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "sunrise.tokenconverter.Params.denom_gov_token":
+	case "sunrise.tokenconverter.Params.bond_denom":
 		return protoreflect.ValueOfString("")
-	case "sunrise.tokenconverter.Params.denom_fee_token":
+	case "sunrise.tokenconverter.Params.fee_denom":
 		return protoreflect.ValueOfString("")
 	case "sunrise.tokenconverter.Params.max_supply_fee_token":
 		return protoreflect.ValueOfString("")
@@ -321,11 +321,11 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		l = len(x.DenomGovToken)
+		l = len(x.BondDenom)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.DenomFeeToken)
+		l = len(x.FeeDenom)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -369,17 +369,17 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			i--
 			dAtA[i] = 0x1a
 		}
-		if len(x.DenomFeeToken) > 0 {
-			i -= len(x.DenomFeeToken)
-			copy(dAtA[i:], x.DenomFeeToken)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DenomFeeToken)))
+		if len(x.FeeDenom) > 0 {
+			i -= len(x.FeeDenom)
+			copy(dAtA[i:], x.FeeDenom)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.FeeDenom)))
 			i--
 			dAtA[i] = 0x12
 		}
-		if len(x.DenomGovToken) > 0 {
-			i -= len(x.DenomGovToken)
-			copy(dAtA[i:], x.DenomGovToken)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DenomGovToken)))
+		if len(x.BondDenom) > 0 {
+			i -= len(x.BondDenom)
+			copy(dAtA[i:], x.BondDenom)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.BondDenom)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -434,7 +434,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DenomGovToken", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BondDenom", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -462,11 +462,11 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.DenomGovToken = string(dAtA[iNdEx:postIndex])
+				x.BondDenom = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DenomFeeToken", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field FeeDenom", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -494,7 +494,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.DenomFeeToken = string(dAtA[iNdEx:postIndex])
+				x.FeeDenom = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 3:
 				if wireType != 2 {
@@ -607,16 +607,16 @@ func (*Params) Descriptor() ([]byte, []int) {
 	return file_sunrise_tokenconverter_params_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Params) GetDenomGovToken() string {
+func (x *Params) GetBondDenom() string {
 	if x != nil {
-		return x.DenomGovToken
+		return x.BondDenom
 	}
 	return ""
 }
 
-func (x *Params) GetDenomFeeToken() string {
+func (x *Params) GetFeeDenom() string {
 	if x != nil {
-		return x.DenomFeeToken
+		return x.FeeDenom
 	}
 	return ""
 }

@@ -17,6 +17,28 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "params",
 					Short:     "Shows the parameters of the module",
 				},
+				{
+					RpcMethod: "InFlightPacketAll",
+					Use:       "list-in-flight-packet",
+					Short:     "List all in-flight-packet",
+				},
+				{
+					RpcMethod:      "InFlightPacket",
+					Use:            "show-in-flight-packet [src-port] [src-channel] [sequence]",
+					Short:          "Shows a in-flight-packet",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "src_port_id"}, {ProtoField: "src_channel_id"}, {ProtoField: "sequence"}},
+				},
+				{
+					RpcMethod: "AckWaitingPacketAll",
+					Use:       "list-ack-waiting-packet",
+					Short:     "List all ack-waiting-packet",
+				},
+				{
+					RpcMethod:      "AckWaitingPacket",
+					Use:            "show-ack-waiting-packet [id]",
+					Short:          "Shows a ack-waiting-packet",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "index"}},
+				},
 				// this line is used by ignite scaffolding # autocli/query
 			},
 		},
@@ -46,8 +68,8 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
 						// {ProtoField: "interface_provider"},
 						// {ProtoField: "route"},
-						// {ProtoField: "amount_out"},
 						// {ProtoField: "max_amount_in"},
+						// {ProtoField: "amount_out"},
 					},
 				},
 				// this line is used by ignite scaffolding # autocli/tx

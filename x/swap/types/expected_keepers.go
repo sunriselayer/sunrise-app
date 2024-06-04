@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	lptypes "github.com/sunriselayer/sunrise/x/liquiditypool/types"
 )
 
@@ -12,15 +13,27 @@ import (
 type AccountKeeper interface {
 	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI // only used for simulation
 	// Methods imported from account should be defined here
+
+	GetModuleAddress(moduleName string) sdk.AccAddress
 }
 
 // BankKeeper defines the expected interface for the Bank module.
 type BankKeeper interface {
 	SpendableCoins(context.Context, sdk.AccAddress) sdk.Coins
 	// Methods imported from bank should be defined here
+
+	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
-// LiquidityPoolKeeper defines the expected interface for the liquidity module.
+// TransferKeeper defines the expected interface for the IBC Transfer module.
+type TransferKeeper interface {
+	Transfer(ctx context.Context, msg *transfertypes.MsgTransfer) (*transfertypes.MsgTransferResponse, error)
+	DenomPathFromHash(ctx sdk.Context, denom string) (string, error)
+	GetTotalEscrowForDenom(ctx sdk.Context, denom string) sdk.Coin
+	SetTotalEscrowForDenom(ctx sdk.Context, coin sdk.Coin)
+}
+
+// LiquidityPoolKeeper defines the expected interface for the liquidity pool module.
 type LiquidityPoolKeeper interface {
 	GetPool(ctx context.Context, id uint64) (val lptypes.Pool, found bool)
 	CalculateResultExactAmountIn(ctx sdk.Context, pool lptypes.Pool, tokenIn sdk.Coin, denomOut string) (amountOut math.Int, err error)

@@ -29,10 +29,14 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Skip:      true, // skipped because authority gated
 				},
 				{
-					RpcMethod:      "Convert",
-					Use:            "convert",
-					Short:          "Send a convert tx",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{},
+					RpcMethod: "Convert",
+					Use:       "convert [sender] [min-amount] [max-amount]",
+					Short:     "Send a convert tx",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
+						{ProtoField: "sender"},
+						{ProtoField: "min_amount"},
+						{ProtoField: "max_amount"},
+					},
 				},
 				// this line is used by ignite scaffolding # autocli/tx
 			},

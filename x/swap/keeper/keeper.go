@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	"github.com/sunriselayer/sunrise/x/swap/types"
 )
@@ -21,9 +22,12 @@ type (
 		// should be the x/gov module account.
 		authority string
 
-		accountKeeper       types.AccountKeeper
-		bankKeeper          types.BankKeeper
+		AccountKeeper       types.AccountKeeper
+		BankKeeper          types.BankKeeper
+		TransferKeeper      types.TransferKeeper
 		liquidityPoolKeeper types.LiquidityPoolKeeper
+
+		IbcKeeperFn func() *ibckeeper.Keeper
 	}
 )
 
@@ -35,7 +39,9 @@ func NewKeeper(
 
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	transferKeeper types.TransferKeeper,
 	liquidityPoolKeeper types.LiquidityPoolKeeper,
+	ibcKeeperFn func() *ibckeeper.Keeper,
 ) Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic(fmt.Sprintf("invalid authority address: %s", authority))
@@ -47,9 +53,11 @@ func NewKeeper(
 		authority:    authority,
 		logger:       logger,
 
-		accountKeeper:       accountKeeper,
-		bankKeeper:          bankKeeper,
+		AccountKeeper:       accountKeeper,
+		BankKeeper:          bankKeeper,
+		TransferKeeper:      transferKeeper,
 		liquidityPoolKeeper: liquidityPoolKeeper,
+		IbcKeeperFn:         ibcKeeperFn,
 	}
 }
 

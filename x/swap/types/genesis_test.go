@@ -19,12 +19,88 @@ func TestGenesisState_Validate(t *testing.T) {
 			valid:    true,
 		},
 		{
-			desc:     "valid genesis state",
+			desc: "valid genesis state",
 			genState: &types.GenesisState{
 
+				IncomingInFlightPacketList: []types.IncomingInFlightPacket{
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+					{
+						Index: types.PacketIndex{
+							PortId:    "1",
+							ChannelId: "1",
+							Sequence:  1,
+						},
+					},
+				},
+				OutgoingInFlightPacketList: []types.OutgoingInFlightPacket{
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+					{
+						Index: types.PacketIndex{
+							PortId:    "1",
+							ChannelId: "1",
+							Sequence:  1,
+						},
+					},
+				},
 				// this line is used by starport scaffolding # types/genesis/validField
 			},
 			valid: true,
+		},
+		{
+			desc: "duplicated incomingInFlightPacket",
+			genState: &types.GenesisState{
+				IncomingInFlightPacketList: []types.IncomingInFlightPacket{
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+				},
+			},
+			valid: false,
+		},
+		{
+			desc: "duplicated outgoingInFlightPacket",
+			genState: &types.GenesisState{
+				OutgoingInFlightPacketList: []types.OutgoingInFlightPacket{
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+					{
+						Index: types.PacketIndex{
+							PortId:    "0",
+							ChannelId: "0",
+							Sequence:  0,
+						},
+					},
+				},
+			},
+			valid: false,
 		},
 		// this line is used by starport scaffolding # types/genesis/testcase
 	}

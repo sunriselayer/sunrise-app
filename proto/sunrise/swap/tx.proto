@@ -62,7 +62,15 @@ message MsgSwapExactAmountIn {
 }
 
 message MsgSwapExactAmountInResponse {
-  string amount_out = 1 [
+  RouteResult result = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  string interface_provider_fee = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+  string amount_out = 3 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false,
@@ -87,7 +95,15 @@ message MsgSwapExactAmountOut {
 }
 
 message MsgSwapExactAmountOutResponse {
-  string amount_in = 1 [
+  RouteResult result = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  string interface_provider_fee = 2 [
+    (cosmos_proto.scalar) = "cosmos.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+  string amount_out = 3 [
     (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false,

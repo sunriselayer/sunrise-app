@@ -6,9 +6,27 @@ import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "sunrise/swap/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/sunriselayer/sunrise/x/swap/types";
+
+message RoutePool { uint64 pool_id = 1; }
+
+message RouteSeries {
+  repeated Route routes = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}
+
+message RouteParallel {
+  repeated Route routes = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+  repeated string weights = 2 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
 
 message Route {
   string denom_in = 1;
@@ -20,33 +38,24 @@ message Route {
   }
 }
 
-message RoutePool {
-  uint64 pool_id = 1;
+message RouteResultPool { uint64 pool_id = 1; }
+
+message RouteResultSeries {
+  repeated RouteResult route_results = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }
 
-message RouteSeries {
-  repeated Route routes = 1 [
-    (gogoproto.nullable)   = false,
-    (amino.dont_omitempty) = true
-  ];
+message RouteResultParallel {
+  repeated RouteResult route_results = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }
 
-message RouteParallel {
-  repeated WeightedRoute routes = 1 [
-    (gogoproto.nullable)   = false,
-    (amino.dont_omitempty) = true
-  ];
-}
-
-message WeightedRoute {
-  string weight = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Dec",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false,
-    (amino.dont_omitempty) = true
-  ];
-  Route route = 2 [
-    (gogoproto.nullable)   = false,
-    (amino.dont_omitempty) = true
-  ];
+message RouteResult {
+  cosmos.base.v1beta1.Coin token_in = 1 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin token_out = 2 [ (gogoproto.nullable) = false ];
+  oneof strategy {
+    RouteResultPool pool = 3;
+    RouteResultSeries series = 4;
+    RouteResultParallel parallel = 5;
+  }
 }
