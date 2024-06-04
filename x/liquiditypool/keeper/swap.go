@@ -8,7 +8,6 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/sunriselayer/sunrise/x/liquiditypool/swapstrategy"
 	"github.com/sunriselayer/sunrise/x/liquiditypool/types"
 )
 
@@ -20,7 +19,7 @@ type SwapState struct {
 	liquidity                       math.LegacyDec
 	globalFeeGrowthPerUnitLiquidity math.LegacyDec
 	globalFeeGrowth                 math.LegacyDec
-	swapStrategy                    swapstrategy.SwapStrategy
+	swapStrategy                    SwapStrategy
 }
 
 type SwapResult struct {
@@ -31,7 +30,7 @@ type SwapResult struct {
 
 const swapNoProgressLimit = 100
 
-func newSwapState(specifiedAmount math.Int, p types.Pool, strategy swapstrategy.SwapStrategy) SwapState {
+func newSwapState(specifiedAmount math.Int, p types.Pool, strategy SwapStrategy) SwapState {
 	return SwapState{
 		amountSpecifiedRemaining:        specifiedAmount.ToLegacyDec(),
 		amountCalculated:                math.LegacyZeroDec(),
@@ -83,7 +82,7 @@ func (k Keeper) SwapExactAmountIn(
 
 	baseForQuote := getBaseForQuote(tokenIn.Denom, pool.DenomBase)
 
-	priceLimit := swapstrategy.GetPriceLimit(baseForQuote)
+	priceLimit := GetPriceLimit(baseForQuote)
 	tokenIn, tokenOut, _, err := k.swapOutAmtGivenIn(ctx, sender, pool, tokenIn, denomOut, pool.FeeRate, priceLimit)
 	if err != nil {
 		return math.Int{}, err
@@ -106,7 +105,7 @@ func (k Keeper) SwapExactAmountOut(
 
 	baseForQuote := getBaseForQuote(denomIn, pool.DenomBase)
 
-	priceLimit := swapstrategy.GetPriceLimit(baseForQuote)
+	priceLimit := GetPriceLimit(baseForQuote)
 	tokenIn, tokenOut, _, err := k.swapInAmtGivenOut(ctx, sender, pool, tokenOut, denomIn, pool.FeeRate, priceLimit)
 	if err != nil {
 		return math.Int{}, err
@@ -217,7 +216,7 @@ func (k Keeper) getPoolAndAccum(
 	return pool, feeAccum, err
 }
 
-func iteratorToNextTickSqrtPriceTarget(nextInitTickIter db.Iterator, pool types.Pool, swapstrat swapstrategy.SwapStrategy) (int64, math.LegacyDec, math.LegacyDec, error) {
+func iteratorToNextTickSqrtPriceTarget(nextInitTickIter db.Iterator, pool types.Pool, swapstrat SwapStrategy) (int64, math.LegacyDec, math.LegacyDec, error) {
 	if !nextInitTickIter.Valid() {
 		return 0, math.LegacyDec{}, math.LegacyDec{}, types.ErrRanOutOfTicks
 	}
@@ -431,7 +430,7 @@ func (k Keeper) computeInAmtGivenOut(
 }
 
 func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
-	swapState SwapState, strategy swapstrategy.SwapStrategy,
+	swapState SwapState, strategy SwapStrategy,
 	nextInitializedTick int64, nextTickIter db.Iterator,
 	p types.Pool,
 	feeAccum types.AccumulatorObject,
@@ -519,16 +518,16 @@ func checkDenomValidity(inDenom, outDenom, assetBase, assetQuote string) error {
 	return nil
 }
 
-func (k Keeper) setupSwapStrategy(p types.Pool, feeRate math.LegacyDec, denomIn string, priceLimit math.LegacyDec) (strategy swapstrategy.SwapStrategy, sqrtPriceLimit math.LegacyDec, err error) {
+func (k Keeper) setupSwapStrategy(p types.Pool, feeRate math.LegacyDec, denomIn string, priceLimit math.LegacyDec) (strategy SwapStrategy, sqrtPriceLimit math.LegacyDec, err error) {
 	baseForQuote := getBaseForQuote(denomIn, p.DenomBase)
 
 	// take provided price limit and turn into a sqrt price limit
-	sqrtPriceLimit, err = swapstrategy.GetSqrtPriceLimit(priceLimit, baseForQuote)
+	sqrtPriceLimit, err = GetSqrtPriceLimit(priceLimit, baseForQuote)
 	if err != nil {
 		return strategy, math.LegacyDec{}, err
 	}
 
-	swapStrategy := swapstrategy.New(baseForQuote, sqrtPriceLimit, k.storeService, feeRate)
+	swapStrategy := New(baseForQuote, sqrtPriceLimit, k.storeService, feeRate)
 
 	// get current sqrt price
 	curSqrtPrice := p.CurrentSqrtPrice
