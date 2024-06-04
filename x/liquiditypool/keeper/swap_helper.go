@@ -12,22 +12,22 @@ import (
 	"github.com/sunriselayer/sunrise/x/liquiditypool/types"
 )
 
-type SwapStrategy interface {
+type SwapHelper interface {
 	GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDec) math.LegacyDec
 	ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountRemainingIn math.LegacyDec) (sqrtPriceNext math.LegacyDec, amountInConsumed, amountOutComputed, feeChargeTotal math.LegacyDec)
 	ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountRemainingOut math.LegacyDec) (sqrtPriceNext math.LegacyDec, amountOutConsumed, amountInComputed, feeChargeTotal math.LegacyDec)
-	NextTickIterator(ctx sdk.Context, poolId uint64, tickIndex int64) dbm.Iterator
+	NextTickIterator(ctx sdk.Context, storeService store.KVStoreService, poolId uint64, tickIndex int64) dbm.Iterator
 	GetLiquidityDeltaSign(liquidityDelta math.LegacyDec) math.LegacyDec
 	NextTickAfterCrossing(nextTick int64) (updatedNextTick int64)
 	ValidateSqrtPrice(sqrtPriceLimit math.LegacyDec, currentSqrtPrice math.LegacyDec) error
 	BaseForQuote() bool
 }
 
-func New(baseForQuote bool, sqrtPriceLimit math.LegacyDec, storeService store.KVStoreService, feeRate math.LegacyDec) SwapStrategy {
+func New(baseForQuote bool, sqrtPriceLimit math.LegacyDec, feeRate math.LegacyDec) SwapHelper {
 	if baseForQuote {
-		return &baseForQuoteStrategy{sqrtPriceLimit: sqrtPriceLimit, storeService: storeService, feeRate: feeRate}
+		return &baseForQuoteHelper{sqrtPriceLimit: sqrtPriceLimit, feeRate: feeRate}
 	}
-	return &quoteForBaseStrategy{sqrtPriceLimit: sqrtPriceLimit, storeService: storeService, feeRate: feeRate}
+	return &quoteForBaseHelper{sqrtPriceLimit: sqrtPriceLimit, feeRate: feeRate}
 }
 
 func GetPriceLimit(baseForQuote bool) math.LegacyDec {
@@ -86,24 +86,23 @@ func computeFeeChargePerSwapStepOutGivenIn(hasReachedTarget bool, amountIn, amou
 	return feeChargeTotal
 }
 
-type baseForQuoteStrategy struct {
+type baseForQuoteHelper struct {
 	sqrtPriceLimit math.LegacyDec
-	storeService   store.KVStoreService
 	feeRate        math.LegacyDec
 }
 
-var _ SwapStrategy = (*baseForQuoteStrategy)(nil)
+var _ SwapHelper = (*baseForQuoteHelper)(nil)
 
-func (s baseForQuoteStrategy) BaseForQuote() bool { return true }
+func (s baseForQuoteHelper) BaseForQuote() bool { return true }
 
-func (s baseForQuoteStrategy) GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDec) math.LegacyDec {
+func (s baseForQuoteHelper) GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDec) math.LegacyDec {
 	if nextTickSqrtPrice.LT(s.sqrtPriceLimit) {
 		return s.sqrtPriceLimit
 	}
 	return nextTickSqrtPrice
 }
 
-func (s baseForQuoteStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountBaseInRemaining math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
+func (s baseForQuoteHelper) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountBaseInRemaining math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
 	amountBaseIn := types.CalcAmountBaseDelta(liquidity, sqrtPriceTarget, sqrtPriceCurrent, true)
 	amountBaseInAfterFee := amountBaseInRemaining.Mul(math.LegacyOneDec().Sub(s.feeRate))
 
@@ -125,7 +124,7 @@ func (s baseForQuoteStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent
 	return sqrtPriceNext, amountBaseIn, amountQuoteOut, feeChargeTotal
 }
 
-func (s baseForQuoteStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountQuoteRemainingOut math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
+func (s baseForQuoteHelper) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountQuoteRemainingOut math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
 	amountQuoteOut := types.CalcAmountQuoteDelta(liquidity, sqrtPriceTarget, sqrtPriceCurrent, false)
 
 	var sqrtPriceNext math.LegacyDec
@@ -152,8 +151,8 @@ func (s baseForQuoteStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent
 	return sqrtPriceNext, amountQuoteOut, amountBaseIn, feeChargeTotal
 }
 
-func (s baseForQuoteStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, currentTickIndex int64) dbm.Iterator {
-	storeAdapter := runtime.KVStoreAdapter(s.storeService.OpenKVStore(ctx))
+func (s baseForQuoteHelper) NextTickIterator(ctx sdk.Context, storeService store.KVStoreService, poolId uint64, currentTickIndex int64) dbm.Iterator {
+	storeAdapter := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
 	prefixBz := types.KeyTickPrefixByPoolId(poolId)
 	prefixStore := prefix.NewStore(storeAdapter, prefixBz)
 	startKey := types.TickIndexToBytes(currentTickIndex + 1)
@@ -172,39 +171,38 @@ func (s baseForQuoteStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, c
 	return iter
 }
 
-func (s baseForQuoteStrategy) GetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
+func (s baseForQuoteHelper) GetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
 	return deltaLiquidity.Neg()
 }
 
-func (s baseForQuoteStrategy) NextTickAfterCrossing(nextTick int64) int64 {
+func (s baseForQuoteHelper) NextTickAfterCrossing(nextTick int64) int64 {
 	return nextTick - 1
 }
 
-func (s baseForQuoteStrategy) ValidateSqrtPrice(sqrtPrice math.LegacyDec, currentSqrtPrice math.LegacyDec) error {
+func (s baseForQuoteHelper) ValidateSqrtPrice(sqrtPrice math.LegacyDec, currentSqrtPrice math.LegacyDec) error {
 	if sqrtPrice.GT(currentSqrtPrice) || sqrtPrice.LT(types.MinSqrtPrice) {
 		return types.ErrInvalidSqrtPrice
 	}
 	return nil
 }
 
-type quoteForBaseStrategy struct {
+type quoteForBaseHelper struct {
 	sqrtPriceLimit math.LegacyDec
-	storeService   store.KVStoreService
 	feeRate        math.LegacyDec
 }
 
-var _ SwapStrategy = (*quoteForBaseStrategy)(nil)
+var _ SwapHelper = (*quoteForBaseHelper)(nil)
 
-func (s quoteForBaseStrategy) BaseForQuote() bool { return false }
+func (s quoteForBaseHelper) BaseForQuote() bool { return false }
 
-func (s quoteForBaseStrategy) GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDec) math.LegacyDec {
+func (s quoteForBaseHelper) GetSqrtTargetPrice(nextTickSqrtPrice math.LegacyDec) math.LegacyDec {
 	if nextTickSqrtPrice.GT(s.sqrtPriceLimit) {
 		return s.sqrtPriceLimit
 	}
 	return nextTickSqrtPrice
 }
 
-func (s quoteForBaseStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountQuoteInRemaining math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
+func (s quoteForBaseHelper) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountQuoteInRemaining math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
 	amountQuoteIn := types.CalcAmountQuoteDelta(liquidity, sqrtPriceTarget, sqrtPriceCurrent, true)
 
 	amountQuoteInAfterFee := amountQuoteInRemaining.Mul(math.LegacyOneDec().Sub(s.feeRate))
@@ -228,7 +226,7 @@ func (s quoteForBaseStrategy) ComputeSwapWithinBucketOutGivenIn(sqrtPriceCurrent
 	return sqrtPriceNext, amountQuoteIn, amountBaseOut, feeChargeTotal
 }
 
-func (s quoteForBaseStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountBaseRemainingOut math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
+func (s quoteForBaseHelper) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent, sqrtPriceTarget math.LegacyDec, liquidity, amountBaseRemainingOut math.LegacyDec) (math.LegacyDec, math.LegacyDec, math.LegacyDec, math.LegacyDec) {
 	amountBaseOut := types.CalcAmountBaseDelta(liquidity, sqrtPriceTarget, sqrtPriceCurrent, false)
 
 	var sqrtPriceNext math.LegacyDec
@@ -254,8 +252,8 @@ func (s quoteForBaseStrategy) ComputeSwapWithinBucketInGivenOut(sqrtPriceCurrent
 	return sqrtPriceNext, amountBaseOut, amountQuoteIn, feeChargeTotal
 }
 
-func (s quoteForBaseStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, currentTickIndex int64) dbm.Iterator {
-	storeAdapter := runtime.KVStoreAdapter(s.storeService.OpenKVStore(ctx))
+func (s quoteForBaseHelper) NextTickIterator(ctx sdk.Context, storeService store.KVStoreService, poolId uint64, currentTickIndex int64) dbm.Iterator {
+	storeAdapter := runtime.KVStoreAdapter(storeService.OpenKVStore(ctx))
 	prefixBz := types.KeyTickPrefixByPoolId(poolId)
 	prefixStore := prefix.NewStore(storeAdapter, prefixBz)
 	startKey := types.TickIndexToBytes(currentTickIndex)
@@ -275,15 +273,15 @@ func (s quoteForBaseStrategy) NextTickIterator(ctx sdk.Context, poolId uint64, c
 	return iter
 }
 
-func (s quoteForBaseStrategy) GetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
+func (s quoteForBaseHelper) GetLiquidityDeltaSign(deltaLiquidity math.LegacyDec) math.LegacyDec {
 	return deltaLiquidity
 }
 
-func (s quoteForBaseStrategy) NextTickAfterCrossing(nextTick int64) int64 {
+func (s quoteForBaseHelper) NextTickAfterCrossing(nextTick int64) int64 {
 	return nextTick
 }
 
-func (s quoteForBaseStrategy) ValidateSqrtPrice(sqrtPrice math.LegacyDec, currentSqrtPrice math.LegacyDec) error {
+func (s quoteForBaseHelper) ValidateSqrtPrice(sqrtPrice math.LegacyDec, currentSqrtPrice math.LegacyDec) error {
 	if sqrtPrice.LT(currentSqrtPrice) || sqrtPrice.GT(types.MaxSqrtPrice) {
 		return types.ErrInvalidSqrtPrice
 	}

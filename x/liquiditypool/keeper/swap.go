@@ -19,7 +19,7 @@ type SwapState struct {
 	liquidity                       math.LegacyDec
 	globalFeeGrowthPerUnitLiquidity math.LegacyDec
 	globalFeeGrowth                 math.LegacyDec
-	swapStrategy                    SwapStrategy
+	swapHelper                      SwapHelper
 }
 
 type SwapResult struct {
@@ -30,7 +30,7 @@ type SwapResult struct {
 
 const swapNoProgressLimit = 100
 
-func newSwapState(specifiedAmount math.Int, p types.Pool, strategy SwapStrategy) SwapState {
+func newSwapState(specifiedAmount math.Int, p types.Pool, strategy SwapHelper) SwapState {
 	return SwapState{
 		amountSpecifiedRemaining:        specifiedAmount.ToLegacyDec(),
 		amountCalculated:                math.LegacyZeroDec(),
@@ -39,7 +39,7 @@ func newSwapState(specifiedAmount math.Int, p types.Pool, strategy SwapStrategy)
 		liquidity:                       p.CurrentTickLiquidity,
 		globalFeeGrowthPerUnitLiquidity: math.LegacyZeroDec(),
 		globalFeeGrowth:                 math.LegacyZeroDec(),
-		swapStrategy:                    strategy,
+		swapHelper:                      strategy,
 	}
 }
 
@@ -216,7 +216,7 @@ func (k Keeper) getPoolAndAccum(
 	return pool, feeAccum, err
 }
 
-func iteratorToNextTickSqrtPriceTarget(nextInitTickIter db.Iterator, pool types.Pool, swapstrat SwapStrategy) (int64, math.LegacyDec, math.LegacyDec, error) {
+func iteratorToNextTickSqrtPriceTarget(nextInitTickIter db.Iterator, pool types.Pool, swapstrat SwapHelper) (int64, math.LegacyDec, math.LegacyDec, error) {
 	if !nextInitTickIter.Valid() {
 		return 0, math.LegacyDec{}, math.LegacyDec{}, types.ErrRanOutOfTicks
 	}
@@ -249,26 +249,26 @@ func (k Keeper) computeOutAmtGivenIn(
 		return SwapResult{}, PoolUpdates{}, err
 	}
 
-	swapStrategy, sqrtPriceLimit, err := k.setupSwapStrategy(p, feeRate, minTokenIn.Denom, priceLimit)
+	swapHelper, sqrtPriceLimit, err := k.setupSwapHelper(p, feeRate, minTokenIn.Denom, priceLimit)
 	if err != nil {
 		return SwapResult{}, PoolUpdates{}, err
 	}
 
-	swapState := newSwapState(minTokenIn.Amount, p, swapStrategy)
+	swapState := newSwapState(minTokenIn.Amount, p, swapHelper)
 
-	nextInitTickIter := swapStrategy.NextTickIterator(ctx, poolId, swapState.tick)
+	nextInitTickIter := swapHelper.NextTickIterator(ctx, k.storeService, poolId, swapState.tick)
 	defer nextInitTickIter.Close()
 
 	swapNoProgressIterationCount := 0
 	for swapState.amountSpecifiedRemaining.IsPositive() && !swapState.sqrtPrice.Equal(sqrtPriceLimit) {
 		sqrtPriceStart := swapState.sqrtPrice
 
-		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapStrategy)
+		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapHelper)
 		if err != nil {
 			return SwapResult{}, PoolUpdates{}, err
 		}
 
-		computedSqrtPrice, amountIn, amountOut, feeCharge := swapStrategy.ComputeSwapWithinBucketOutGivenIn(
+		computedSqrtPrice, amountIn, amountOut, feeCharge := swapHelper.ComputeSwapWithinBucketOutGivenIn(
 			swapState.sqrtPrice,
 			sqrtPriceTarget,
 			swapState.liquidity,
@@ -290,12 +290,12 @@ func (k Keeper) computeOutAmtGivenIn(
 		swapState.amountSpecifiedRemaining.SubMut(amountIn.Add(feeCharge))
 		swapState.amountCalculated.AddMut(amountOut)
 		if nextInitializedTickSqrtPrice.Equal(computedSqrtPrice) {
-			swapState, err = k.swapCrossTickLogic(ctx, swapState, swapStrategy,
+			swapState, err = k.swapCrossTickLogic(ctx, swapState, swapHelper,
 				nextInitializedTick, nextInitTickIter, p, feeAccumulator, minTokenIn.Denom, updateAccumulators)
 			if err != nil {
 				return SwapResult{}, PoolUpdates{}, err
 			}
-		} else if edgeCaseInequalityBasedOnSwapStrategy(swapStrategy.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
+		} else if edgeCaseInequalityBasedOnSwapHelper(swapHelper.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
 			return SwapResult{}, PoolUpdates{}, types.ErrInvalidComputedSqrtPrice
 		} else if !sqrtPriceStart.Equal(computedSqrtPrice) {
 			newTick, err := types.CalculateSqrtPriceToTick(computedSqrtPrice, p.TickParams)
@@ -346,26 +346,26 @@ func (k Keeper) computeInAmtGivenOut(
 		return SwapResult{}, PoolUpdates{}, err
 	}
 
-	swapStrategy, sqrtPriceLimit, err := k.setupSwapStrategy(p, feeRate, denomIn, priceLimit)
+	swapHelper, sqrtPriceLimit, err := k.setupSwapHelper(p, feeRate, denomIn, priceLimit)
 	if err != nil {
 		return SwapResult{}, PoolUpdates{}, err
 	}
 
-	swapState := newSwapState(desiredTokenOut.Amount, p, swapStrategy)
+	swapState := newSwapState(desiredTokenOut.Amount, p, swapHelper)
 
-	nextInitTickIter := swapStrategy.NextTickIterator(ctx, poolId, swapState.tick)
+	nextInitTickIter := swapHelper.NextTickIterator(ctx, k.storeService, poolId, swapState.tick)
 	defer nextInitTickIter.Close()
 
 	swapNoProgressIterationCount := 0
 	for swapState.amountSpecifiedRemaining.IsPositive() && !swapState.sqrtPrice.Equal(sqrtPriceLimit) {
 		sqrtPriceStart := swapState.sqrtPrice
 
-		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapStrategy)
+		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapHelper)
 		if err != nil {
 			return SwapResult{}, PoolUpdates{}, err
 		}
 
-		computedSqrtPrice, amountOut, amountIn, feeChargeTotal := swapStrategy.ComputeSwapWithinBucketInGivenOut(
+		computedSqrtPrice, amountOut, amountIn, feeChargeTotal := swapHelper.ComputeSwapWithinBucketInGivenOut(
 			swapState.sqrtPrice,
 			sqrtPriceTarget,
 			swapState.liquidity,
@@ -388,12 +388,12 @@ func (k Keeper) computeInAmtGivenOut(
 		swapState.amountCalculated.AddMut(amountIn.Add(feeChargeTotal))
 
 		if nextInitializedTickSqrtPrice.Equal(computedSqrtPrice) {
-			swapState, err = k.swapCrossTickLogic(ctx, swapState, swapStrategy,
+			swapState, err = k.swapCrossTickLogic(ctx, swapState, swapHelper,
 				nextInitializedTick, nextInitTickIter, p, feeAccumulator, denomIn, updateAccumulators)
 			if err != nil {
 				return SwapResult{}, PoolUpdates{}, err
 			}
-		} else if edgeCaseInequalityBasedOnSwapStrategy(swapStrategy.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
+		} else if edgeCaseInequalityBasedOnSwapHelper(swapHelper.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
 			return SwapResult{}, PoolUpdates{}, types.ErrInvalidComputedSqrtPrice
 		} else if !sqrtPriceStart.Equal(computedSqrtPrice) {
 			swapState.tick, err = types.CalculateSqrtPriceToTick(computedSqrtPrice, p.TickParams)
@@ -430,7 +430,7 @@ func (k Keeper) computeInAmtGivenOut(
 }
 
 func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
-	swapState SwapState, strategy SwapStrategy,
+	swapState SwapState, strategy SwapHelper,
 	nextInitializedTick int64, nextTickIter db.Iterator,
 	p types.Pool,
 	feeAccum types.AccumulatorObject,
@@ -454,7 +454,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 
 	nextTickIter.Next()
 
-	liquidityNet = swapState.swapStrategy.GetLiquidityDeltaSign(liquidityNet)
+	liquidityNet = swapState.swapHelper.GetLiquidityDeltaSign(liquidityNet)
 	swapState.liquidity.AddMut(liquidityNet)
 
 	swapState.tick = strategy.NextTickAfterCrossing(nextInitializedTick)
@@ -518,7 +518,7 @@ func checkDenomValidity(inDenom, outDenom, assetBase, assetQuote string) error {
 	return nil
 }
 
-func (k Keeper) setupSwapStrategy(p types.Pool, feeRate math.LegacyDec, denomIn string, priceLimit math.LegacyDec) (strategy SwapStrategy, sqrtPriceLimit math.LegacyDec, err error) {
+func (k Keeper) setupSwapHelper(p types.Pool, feeRate math.LegacyDec, denomIn string, priceLimit math.LegacyDec) (strategy SwapHelper, sqrtPriceLimit math.LegacyDec, err error) {
 	baseForQuote := getBaseForQuote(denomIn, p.DenomBase)
 
 	// take provided price limit and turn into a sqrt price limit
@@ -527,15 +527,15 @@ func (k Keeper) setupSwapStrategy(p types.Pool, feeRate math.LegacyDec, denomIn 
 		return strategy, math.LegacyDec{}, err
 	}
 
-	swapStrategy := New(baseForQuote, sqrtPriceLimit, k.storeService, feeRate)
+	swapHelper := New(baseForQuote, sqrtPriceLimit, feeRate)
 
 	// get current sqrt price
 	curSqrtPrice := p.CurrentSqrtPrice
-	if err := swapStrategy.ValidateSqrtPrice(sqrtPriceLimit, curSqrtPrice); err != nil {
+	if err := swapHelper.ValidateSqrtPrice(sqrtPriceLimit, curSqrtPrice); err != nil {
 		return strategy, math.LegacyDec{}, err
 	}
 
-	return swapStrategy, sqrtPriceLimit, nil
+	return swapHelper, sqrtPriceLimit, nil
 }
 
 func (k Keeper) getPoolForSwap(ctx sdk.Context, poolId uint64) (types.Pool, error) {
@@ -557,7 +557,7 @@ func validateSwapProgressAndAmountConsumption(computedSqrtPrice, sqrtPriceStart 
 	return nil
 }
 
-func edgeCaseInequalityBasedOnSwapStrategy(isBaseForQuote bool, nextInitializedTickSqrtPrice, computedSqrtPrice math.LegacyDec) bool {
+func edgeCaseInequalityBasedOnSwapHelper(isBaseForQuote bool, nextInitializedTickSqrtPrice, computedSqrtPrice math.LegacyDec) bool {
 	if isBaseForQuote {
 		return nextInitializedTickSqrtPrice.GT(computedSqrtPrice)
 	}
@@ -588,15 +588,15 @@ func (k Keeper) ComputeMaxInAmtGivenMaxTicksCrossed(
 		denomOut = p.DenomBase
 	}
 
-	swapStrategy, _, err := k.setupSwapStrategy(p, p.FeeRate, denomIn, math.LegacyZeroDec())
+	swapHelper, _, err := k.setupSwapHelper(p, p.FeeRate, denomIn, math.LegacyZeroDec())
 	if err != nil {
 		return sdk.Coin{}, sdk.Coin{}, err
 	}
 
 	balance := k.bankKeeper.GetBalance(ctx, p.GetAddress(), denomOut)
-	swapState := newSwapState(balance.Amount, p, swapStrategy)
+	swapState := newSwapState(balance.Amount, p, swapHelper)
 
-	nextInitTickIter := swapStrategy.NextTickIterator(cacheCtx, poolId, swapState.tick)
+	nextInitTickIter := swapHelper.NextTickIterator(cacheCtx, k.storeService, poolId, swapState.tick)
 	defer nextInitTickIter.Close()
 
 	totalTokenOut := math.LegacyZeroDec()
@@ -606,13 +606,13 @@ func (k Keeper) ComputeMaxInAmtGivenMaxTicksCrossed(
 			break
 		}
 
-		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapStrategy)
+		nextInitializedTick, nextInitializedTickSqrtPrice, sqrtPriceTarget, err := iteratorToNextTickSqrtPriceTarget(nextInitTickIter, p, swapHelper)
 		if err != nil {
 			return sdk.Coin{}, sdk.Coin{}, err
 		}
 
 		// Compute the swap
-		computedSqrtPrice, amountOut, amountIn, feeChargeTotal := swapStrategy.ComputeSwapWithinBucketInGivenOut(
+		computedSqrtPrice, amountOut, amountIn, feeChargeTotal := swapHelper.ComputeSwapWithinBucketInGivenOut(
 			swapState.sqrtPrice,
 			sqrtPriceTarget,
 			swapState.liquidity,
@@ -634,11 +634,11 @@ func (k Keeper) ComputeMaxInAmtGivenMaxTicksCrossed(
 
 			nextInitTickIter.Next()
 
-			liquidityNet = swapState.swapStrategy.GetLiquidityDeltaSign(liquidityNet)
+			liquidityNet = swapState.swapHelper.GetLiquidityDeltaSign(liquidityNet)
 			swapState.liquidity.AddMut(liquidityNet)
 
-			swapState.tick = swapStrategy.NextTickAfterCrossing(nextInitializedTick)
-		} else if edgeCaseInequalityBasedOnSwapStrategy(swapStrategy.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
+			swapState.tick = swapHelper.NextTickAfterCrossing(nextInitializedTick)
+		} else if edgeCaseInequalityBasedOnSwapHelper(swapHelper.BaseForQuote(), nextInitializedTickSqrtPrice, computedSqrtPrice) {
 			return sdk.Coin{}, sdk.Coin{}, types.ErrNotEqualSqrtPrice
 		} else if !swapState.sqrtPrice.Equal(computedSqrtPrice) {
 			newTick, err := types.CalculateSqrtPriceToTick(computedSqrtPrice, p.TickParams)
