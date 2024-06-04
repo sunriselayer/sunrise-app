@@ -205,22 +205,22 @@ func (k Keeper) updatePositionToInitValuePlusGrowthOutside(ctx context.Context, 
 	return nil
 }
 
-func (k Keeper) updateAccumAndClaimRewards(ctx context.Context, accum types.AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) (sdk.Coins, sdk.DecCoins, error) {
-	err := k.updatePositionToInitValuePlusGrowthOutside(ctx, accum.Name, positionKey, growthOutside)
+func (k Keeper) updateAccumAndClaimRewards(ctx context.Context, accumulator types.AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) (sdk.Coins, sdk.DecCoins, error) {
+	err := k.updatePositionToInitValuePlusGrowthOutside(ctx, accumulator.Name, positionKey, growthOutside)
 	if err != nil {
 		return sdk.Coins{}, sdk.DecCoins{}, err
 	}
 
-	incentivesClaimedCurrAccum, dust, err := k.ClaimRewards(ctx, accum.Name, positionKey)
+	incentivesClaimedCurrAccum, dust, err := k.ClaimRewards(ctx, accumulator.Name, positionKey)
 	if err != nil {
 		return sdk.Coins{}, sdk.DecCoins{}, err
 	}
 
-	hasPosition := k.HasPosition(ctx, accum.Name, positionKey)
+	hasPosition := k.HasPosition(ctx, accumulator.Name, positionKey)
 
 	if hasPosition {
-		currentGrowthInsideForPosition, _ := accum.AccumValue.SafeSub(growthOutside)
-		err := k.SetPositionIntervalAccumulation(ctx, accum.Name, positionKey, currentGrowthInsideForPosition)
+		currentGrowthInsideForPosition, _ := accumulator.AccumValue.SafeSub(growthOutside)
+		err := k.SetPositionIntervalAccumulation(ctx, accumulator.Name, positionKey, currentGrowthInsideForPosition)
 		if err != nil {
 			return sdk.Coins{}, sdk.DecCoins{}, err
 		}

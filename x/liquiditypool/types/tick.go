@@ -60,13 +60,6 @@ func TickToPrice(tickIndex int64, tickParams TickParams) (math.LegacyDec, error)
 	return price, nil
 }
 
-func PowTenInternal(exponent int64) math.LegacyDec {
-	if exponent >= 0 {
-		return powersOfTen[exponent]
-	}
-	return negPowersOfTen[-exponent]
-}
-
 func CalculatePriceToTick(price math.LegacyDec, tickParams TickParams) (tickIndex int64, err error) {
 	if price.IsNegative() {
 		return 0, fmt.Errorf("price must be greater than zero")

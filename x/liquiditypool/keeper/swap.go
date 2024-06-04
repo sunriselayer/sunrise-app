@@ -204,16 +204,16 @@ func (k Keeper) getPoolAndAccum(
 	poolId uint64,
 	denomIn string,
 	denomOut string,
-) (pool types.Pool, feeAccum types.AccumulatorObject, err error) {
+) (pool types.Pool, feeAccumulator types.AccumulatorObject, err error) {
 	pool, err = k.getPoolForSwap(ctx, poolId)
 	if err != nil {
-		return pool, feeAccum, err
+		return pool, feeAccumulator, err
 	}
 	if err := checkDenomValidity(denomIn, denomOut, pool.DenomBase, pool.DenomQuote); err != nil {
-		return pool, feeAccum, err
+		return pool, feeAccumulator, err
 	}
-	feeAccum, err = k.GetFeeAccumulator(ctx, poolId)
-	return pool, feeAccum, err
+	feeAccumulator, err = k.GetFeeAccumulator(ctx, poolId)
+	return pool, feeAccumulator, err
 }
 
 func iteratorToNextTickSqrtPriceTarget(nextInitTickIter db.Iterator, pool types.Pool, swapstrat SwapHelper) (int64, math.LegacyDec, math.LegacyDec, error) {
@@ -433,7 +433,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 	swapState SwapState, strategy SwapHelper,
 	nextInitializedTick int64, nextTickIter db.Iterator,
 	p types.Pool,
-	feeAccum types.AccumulatorObject,
+	feeAccumulator types.AccumulatorObject,
 	denomIn string,
 	updateAccumulators bool,
 ) (SwapState, error) {
@@ -445,7 +445,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 		// TODO: accumulator logic
 
 		feeGrowth := sdk.DecCoin{Denom: denomIn, Amount: swapState.globalFeeGrowthPerUnitLiquidity}
-		err := k.crossTick(ctx, p.Id, nextInitializedTick, &nextInitializedTickInfo, feeGrowth, feeAccum.AccumValue)
+		err := k.crossTick(ctx, p.Id, nextInitializedTick, &nextInitializedTickInfo, feeGrowth, feeAccumulator.AccumValue)
 		if err != nil {
 			return swapState, err
 		}
@@ -530,8 +530,8 @@ func (k Keeper) setupSwapHelper(p types.Pool, feeRate math.LegacyDec, denomIn st
 	swapHelper := New(baseForQuote, sqrtPriceLimit, feeRate)
 
 	// get current sqrt price
-	curSqrtPrice := p.CurrentSqrtPrice
-	if err := swapHelper.ValidateSqrtPrice(sqrtPriceLimit, curSqrtPrice); err != nil {
+	currentSqrtPrice := p.CurrentSqrtPrice
+	if err := swapHelper.ValidateSqrtPrice(sqrtPriceLimit, currentSqrtPrice); err != nil {
 		return strategy, math.LegacyDec{}, err
 	}
 

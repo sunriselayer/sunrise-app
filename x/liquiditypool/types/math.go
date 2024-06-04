@@ -63,7 +63,7 @@ func CalcAmountQuoteDelta(liq math.LegacyDec, sqrtPriceA, sqrtPriceB math.Legacy
 	return diff.Mul(liq)
 }
 
-// sqrt_next = liq * sqrt_cur / (liq + token_in * sqrt_cur)
+// sqrt_next = liq * sqrt_current / (liq + token_in * sqrt_current)
 func GetNextSqrtPriceFromAmountBaseInRoundingUp(sqrtPriceCurrent, liquidity, amountBaseRemainingIn math.LegacyDec) (sqrtPriceNext math.LegacyDec) {
 	if amountBaseRemainingIn.IsZero() {
 		return sqrtPriceCurrent
@@ -77,7 +77,7 @@ func GetNextSqrtPriceFromAmountBaseInRoundingUp(sqrtPriceCurrent, liquidity, amo
 	return liquidity.MulRoundUp(sqrtPriceCurrent).QuoRoundUp(denominator)
 }
 
-// sqrt_next = liq * sqrt_cur / (liq - token_out * sqrt_cur)
+// sqrt_next = liq * sqrt_current / (liq - token_out * sqrt_current)
 func GetNextSqrtPriceFromAmountBaseOutRoundingUp(sqrtPriceCurrent, liquidity math.LegacyDec, amountBaseRemainingOut math.LegacyDec) (sqrtPriceNext math.LegacyDec) {
 	if amountBaseRemainingOut.IsZero() {
 		return sqrtPriceCurrent
@@ -91,12 +91,12 @@ func GetNextSqrtPriceFromAmountBaseOutRoundingUp(sqrtPriceCurrent, liquidity mat
 	return liquidity.MulRoundUp(sqrtPriceCurrent).QuoRoundUp(denominator)
 }
 
-// sqrt_next = sqrt_cur + token_in / liq
+// sqrt_next = sqrt_current + token_in / liq
 func GetNextSqrtPriceFromAmountQuoteInRoundingDown(sqrtPriceCurrent math.LegacyDec, liquidity math.LegacyDec, amountQuoteRemainingIn math.LegacyDec) (sqrtPriceNext math.LegacyDec) {
 	return amountQuoteRemainingIn.QuoTruncate(liquidity).Add(sqrtPriceCurrent)
 }
 
-// sqrt_next = sqrt_cur - token_out / liq
+// sqrt_next = sqrt_current - token_out / liq
 func GetNextSqrtPriceFromAmountQuoteOutRoundingDown(sqrtPriceCurrent math.LegacyDec, liquidity math.LegacyDec, amountQuoteRemainingOut math.LegacyDec) (sqrtPriceNext math.LegacyDec) {
 	return sqrtPriceCurrent.Sub(amountQuoteRemainingOut.QuoRoundUp(liquidity))
 }
@@ -127,16 +127,13 @@ func SquareTruncate(sqrtPrice math.LegacyDec) math.LegacyDec {
 	return sqrtPrice.MulTruncate(sqrtPrice)
 }
 
-func Pow(base math.LegacyDec, exp math.LegacyDec) math.LegacyDec {
+func Pow(base math.LegacyDec, exponent math.LegacyDec) math.LegacyDec {
 	if !base.IsPositive() {
 		panic(fmt.Errorf("base must be greater than 0"))
 	}
 
-	// We will use an approximation algorithm to compute the power.
-	// Since computing an integer power is easy, we split up the exponent into
-	// an integer component and a fractional component.
-	integer := exp.TruncateDec()
-	fractional := exp.Sub(integer)
+	integer := exponent.TruncateDec()
+	fractional := exponent.Sub(integer)
 
 	integerPow := base.Power(uint64(integer.TruncateInt64()))
 
@@ -150,19 +147,19 @@ func Pow(base math.LegacyDec, exp math.LegacyDec) math.LegacyDec {
 }
 
 // Contract: 0 < base <= 2
-// 0 <= exp < 1.
-func PowApprox(originalBase math.LegacyDec, exp math.LegacyDec, precision math.LegacyDec) math.LegacyDec {
+// 0 <= exponent < 1.
+func PowApprox(originalBase math.LegacyDec, exponent math.LegacyDec, precision math.LegacyDec) math.LegacyDec {
 	if !originalBase.IsPositive() {
 		panic(fmt.Errorf("base must be greater than 0"))
 	}
 
-	if exp.IsZero() {
+	if exponent.IsZero() {
 		return math.LegacyOneDec()
 	}
 
 	// Common case optimization
 	// Optimize for it being equal to one-half
-	if exp.Equal(oneHalf) {
+	if exponent.Equal(oneHalf) {
 		output, err := originalBase.ApproxSqrt()
 		if err != nil {
 			panic(err)
@@ -176,19 +173,14 @@ func PowApprox(originalBase math.LegacyDec, exp math.LegacyDec, precision math.L
 	sum := math.LegacyOneDec()
 	negative := false
 
-	a := exp.Clone()
+	a := exponent.Clone()
 	bigK := math.LegacyNewDec(0)
 	for i := int64(1); term.GTE(precision); i++ {
-		// At each iteration, we need two values, i and i-1.
-		// To avoid expensive big.Int allocation, we reuse bigK variable.
-		// On this line, bigK == i-1.
 		c, cneg := AbsDifferenceWithSign(a, bigK)
-		// On this line, bigK == i.
 		bigK.SetInt64(i)
 		term.MulMut(c).MulMut(x).QuoMut(bigK)
 
-		// a is mutated on absDifferenceWithSign, reset
-		a.Set(exp)
+		a.Set(exponent)
 
 		if term.IsZero() {
 			break
@@ -210,8 +202,6 @@ func PowApprox(originalBase math.LegacyDec, exp math.LegacyDec, precision math.L
 	return sum
 }
 
-// AbsDifferenceWithSign returns | a - b |, (a - b).sign()
-// a is mutated and returned.
 func AbsDifferenceWithSign(a, b math.LegacyDec) (math.LegacyDec, bool) {
 	if a.GTE(b) {
 		return a.SubMut(b), false
