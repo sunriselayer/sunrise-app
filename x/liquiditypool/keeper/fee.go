@@ -12,15 +12,15 @@ import (
 var emptyCoins = sdk.DecCoins(nil)
 
 func (k Keeper) createFeeAccumulator(ctx context.Context, poolId uint64) error {
-	err := MakeAccumulator(k.storeService.OpenKVStore(ctx), types.KeyFeePoolAccumulator(poolId))
+	err := k.InitAccumulator(ctx, types.KeyFeePoolAccumulator(poolId))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (k Keeper) GetFeeAccumulator(ctx context.Context, poolId uint64) (*AccumulatorObject, error) {
-	return GetAccumulator(k.storeService.OpenKVStore(ctx), types.KeyFeePoolAccumulator(poolId))
+func (k Keeper) GetFeeAccumulator(ctx context.Context, poolId uint64) (types.AccumulatorObject, error) {
+	return k.GetAccumulator(ctx, types.KeyFeePoolAccumulator(poolId))
 }
 
 func (k Keeper) initOrUpdatePositionFeeAccumulator(ctx sdk.Context, poolId uint64, lowerTick, upperTick int64, positionId uint64, liquidityDelta math.LegacyDec) error {
@@ -31,30 +31,30 @@ func (k Keeper) initOrUpdatePositionFeeAccumulator(ctx sdk.Context, poolId uint6
 
 	positionKey := types.KeyFeePositionAccumulator(positionId)
 
-	hasPosition := feeAccumulator.HasPosition(positionKey)
+	hasPosition := k.HasPosition(ctx, feeAccumulator.Name, positionKey)
 
 	feeGrowthOutside, err := k.getFeeGrowthOutside(ctx, poolId, lowerTick, upperTick)
 	if err != nil {
 		return err
 	}
 
-	feeGrowthInside, _ := feeAccumulator.GetValue().SafeSub(feeGrowthOutside)
+	feeGrowthInside, _ := feeAccumulator.AccumValue.SafeSub(feeGrowthOutside)
 
 	if !hasPosition {
 		if !liquidityDelta.IsPositive() {
 			return types.ErrNonPositiveLiquidity
 		}
 
-		if err := feeAccumulator.NewPositionIntervalAccumulation(positionKey, liquidityDelta, feeGrowthInside); err != nil {
+		if err := k.NewPositionIntervalAccumulation(ctx, feeAccumulator.Name, positionKey, liquidityDelta, feeGrowthInside); err != nil {
 			return err
 		}
 	} else {
-		err = updatePositionToInitValuePlusGrowthOutside(feeAccumulator, positionKey, feeGrowthOutside)
+		err = k.updatePositionToInitValuePlusGrowthOutside(ctx, feeAccumulator.Name, positionKey, feeGrowthOutside)
 		if err != nil {
 			return err
 		}
 
-		err = feeAccumulator.UpdatePositionIntervalAccumulation(positionKey, liquidityDelta, feeGrowthInside)
+		err = k.UpdatePositionIntervalAccumulation(ctx, feeAccumulator.Name, positionKey, liquidityDelta, feeGrowthInside)
 		if err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (k Keeper) getFeeGrowthOutside(ctx sdk.Context, poolId uint64, lowerTick, u
 	if err != nil {
 		return sdk.DecCoins{}, err
 	}
-	poolFeeGrowth := poolFeeAccumulator.GetValue()
+	poolFeeGrowth := poolFeeAccumulator.AccumValue
 
 	feeGrowthAboveUpperTick := calculateFeeGrowth(upperTick, upperTickInfo.FeeGrowth, currentTick, poolFeeGrowth, true)
 	feeGrowthBelowLowerTick := calculateFeeGrowth(lowerTick, lowerTickInfo.FeeGrowth, currentTick, poolFeeGrowth, false)
@@ -98,7 +98,7 @@ func (k Keeper) getInitialFeeGrowth(ctx context.Context, pool types.Pool, tick i
 		if err != nil {
 			return sdk.DecCoins{}, err
 		}
-		return feeAccumulator.GetValue(), nil
+		return feeAccumulator.AccumValue, nil
 	}
 
 	return emptyCoins, nil
@@ -152,7 +152,7 @@ func (k Keeper) prepareClaimableFees(ctx sdk.Context, positionId uint64) (sdk.Co
 
 	positionKey := types.KeyFeePositionAccumulator(positionId)
 
-	hasPosition := feeAccumulator.HasPosition(positionKey)
+	hasPosition := k.HasPosition(ctx, feeAccumulator.Name, positionKey)
 	if !hasPosition {
 		return nil, types.ErrFeePositionNotFound
 	}
@@ -162,7 +162,7 @@ func (k Keeper) prepareClaimableFees(ctx sdk.Context, positionId uint64) (sdk.Co
 		return nil, err
 	}
 
-	feesClaimed, forfeitedDust, err := updateAccumAndClaimRewards(feeAccumulator, positionKey, feeGrowthOutside)
+	feesClaimed, forfeitedDust, err := k.updateAccumAndClaimRewards(ctx, feeAccumulator, positionKey, feeGrowthOutside)
 	if err != nil {
 		return nil, err
 	}
@@ -173,11 +173,11 @@ func (k Keeper) prepareClaimableFees(ctx sdk.Context, positionId uint64) (sdk.Co
 			return nil, err
 		}
 
-		totalSharesRemaining := feeAccumulator.GetTotalShares()
+		totalSharesRemaining := feeAccumulator.TotalShares
 
 		if !totalSharesRemaining.IsZero() {
 			forfeitedDustPerShareScaled := forfeitedDust.QuoDecTruncate(totalSharesRemaining)
-			feeAccumulator.AddToAccumulator(forfeitedDustPerShareScaled)
+			k.AddToAccumulator(ctx, feeAccumulator, forfeitedDustPerShareScaled)
 		}
 	}
 
@@ -191,36 +191,36 @@ func calculateFeeGrowth(targetTick int64, ticksFeeGrowthOppositeDirectionOfLastT
 	return ticksFeeGrowthOppositeDirectionOfLastTraversal
 }
 
-func updatePositionToInitValuePlusGrowthOutside(accumulator *AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) error {
-	position, err := GetAccumPosition(accumulator, positionKey)
+func (k Keeper) updatePositionToInitValuePlusGrowthOutside(ctx context.Context, accumName, positionKey string, growthOutside sdk.DecCoins) error {
+	position, err := k.GetAccumPosition(ctx, accumName, positionKey)
 	if err != nil {
 		return err
 	}
 
 	intervalAccumulationOutside := position.AccumValuePerShare.Add(growthOutside...)
-	err = accumulator.SetPositionIntervalAccumulation(positionKey, intervalAccumulationOutside)
+	err = k.SetPositionIntervalAccumulation(ctx, accumName, positionKey, intervalAccumulationOutside)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func updateAccumAndClaimRewards(accum *AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) (sdk.Coins, sdk.DecCoins, error) {
-	err := updatePositionToInitValuePlusGrowthOutside(accum, positionKey, growthOutside)
+func (k Keeper) updateAccumAndClaimRewards(ctx context.Context, accum types.AccumulatorObject, positionKey string, growthOutside sdk.DecCoins) (sdk.Coins, sdk.DecCoins, error) {
+	err := k.updatePositionToInitValuePlusGrowthOutside(ctx, accum.Name, positionKey, growthOutside)
 	if err != nil {
 		return sdk.Coins{}, sdk.DecCoins{}, err
 	}
 
-	incentivesClaimedCurrAccum, dust, err := accum.ClaimRewards(positionKey)
+	incentivesClaimedCurrAccum, dust, err := k.ClaimRewards(ctx, accum.Name, positionKey)
 	if err != nil {
 		return sdk.Coins{}, sdk.DecCoins{}, err
 	}
 
-	hasPosition := accum.HasPosition(positionKey)
+	hasPosition := k.HasPosition(ctx, accum.Name, positionKey)
 
 	if hasPosition {
-		currentGrowthInsideForPosition, _ := accum.GetValue().SafeSub(growthOutside)
-		err := accum.SetPositionIntervalAccumulation(positionKey, currentGrowthInsideForPosition)
+		currentGrowthInsideForPosition, _ := accum.AccumValue.SafeSub(growthOutside)
+		err := k.SetPositionIntervalAccumulation(ctx, accum.Name, positionKey, currentGrowthInsideForPosition)
 		if err != nil {
 			return sdk.Coins{}, sdk.DecCoins{}, err
 		}

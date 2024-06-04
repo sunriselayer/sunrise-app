@@ -200,13 +200,12 @@ func (k Keeper) CalculateResultExactAmountOut(
 	return swapResult.AmountIn, nil
 }
 
-func (k Keeper) swapSetup(
+func (k Keeper) getPoolAndAccum(
 	ctx sdk.Context,
 	poolId uint64,
 	denomIn string,
 	denomOut string,
-	getAccumulators bool,
-) (pool types.Pool, feeAccum *AccumulatorObject, err error) {
+) (pool types.Pool, feeAccum types.AccumulatorObject, err error) {
 	pool, err = k.getPoolForSwap(ctx, poolId)
 	if err != nil {
 		return pool, feeAccum, err
@@ -214,9 +213,7 @@ func (k Keeper) swapSetup(
 	if err := checkDenomValidity(denomIn, denomOut, pool.DenomBase, pool.DenomQuote); err != nil {
 		return pool, feeAccum, err
 	}
-	if getAccumulators {
-		feeAccum, err = k.GetFeeAccumulator(ctx, poolId)
-	}
+	feeAccum, err = k.GetFeeAccumulator(ctx, poolId)
 	return pool, feeAccum, err
 }
 
@@ -248,7 +245,7 @@ func (k Keeper) computeOutAmtGivenIn(
 	priceLimit math.LegacyDec,
 	updateAccumulators bool,
 ) (swapResult SwapResult, poolUpdates PoolUpdates, err error) {
-	p, feeAccumulator, err := k.swapSetup(ctx, poolId, minTokenIn.Denom, denomOut, updateAccumulators)
+	p, feeAccumulator, err := k.getPoolAndAccum(ctx, poolId, minTokenIn.Denom, denomOut)
 	if err != nil {
 		return SwapResult{}, PoolUpdates{}, err
 	}
@@ -323,7 +320,7 @@ func (k Keeper) computeOutAmtGivenIn(
 
 	if updateAccumulators {
 		feeGrowth := sdk.DecCoin{Denom: minTokenIn.Denom, Amount: swapState.globalFeeGrowthPerUnitLiquidity}
-		feeAccumulator.AddToAccumulator(sdk.NewDecCoins(feeGrowth))
+		k.AddToAccumulator(ctx, feeAccumulator, sdk.NewDecCoins(feeGrowth))
 	}
 
 	amountIn := minTokenIn.Amount.ToLegacyDec().SubMut(swapState.amountSpecifiedRemaining).Ceil().TruncateInt()
@@ -345,7 +342,7 @@ func (k Keeper) computeInAmtGivenOut(
 	poolId uint64,
 	updateAccumulators bool,
 ) (swapResult SwapResult, poolUpdates PoolUpdates, err error) {
-	p, feeAccumulator, err := k.swapSetup(ctx, poolId, denomIn, desiredTokenOut.Denom, updateAccumulators)
+	p, feeAccumulator, err := k.getPoolAndAccum(ctx, poolId, denomIn, desiredTokenOut.Denom)
 	if err != nil {
 		return SwapResult{}, PoolUpdates{}, err
 	}
@@ -419,7 +416,7 @@ func (k Keeper) computeInAmtGivenOut(
 	}
 
 	if updateAccumulators {
-		feeAccumulator.AddToAccumulator(sdk.NewDecCoins(sdk.NewDecCoinFromDec(denomIn, swapState.globalFeeGrowthPerUnitLiquidity)))
+		k.AddToAccumulator(ctx, feeAccumulator, sdk.NewDecCoins(sdk.NewDecCoinFromDec(denomIn, swapState.globalFeeGrowthPerUnitLiquidity)))
 	}
 
 	amountIn := swapState.amountCalculated.Ceil().TruncateInt()
@@ -437,7 +434,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 	swapState SwapState, strategy swapstrategy.SwapStrategy,
 	nextInitializedTick int64, nextTickIter db.Iterator,
 	p types.Pool,
-	feeAccum *AccumulatorObject,
+	feeAccum types.AccumulatorObject,
 	denomIn string,
 	updateAccumulators bool,
 ) (SwapState, error) {
@@ -449,7 +446,7 @@ func (k Keeper) swapCrossTickLogic(ctx sdk.Context,
 		// TODO: accumulator logic
 
 		feeGrowth := sdk.DecCoin{Denom: denomIn, Amount: swapState.globalFeeGrowthPerUnitLiquidity}
-		err := k.crossTick(ctx, p.Id, nextInitializedTick, &nextInitializedTickInfo, feeGrowth, feeAccum.GetValue())
+		err := k.crossTick(ctx, p.Id, nextInitializedTick, &nextInitializedTickInfo, feeGrowth, feeAccum.AccumValue)
 		if err != nil {
 			return swapState, err
 		}
