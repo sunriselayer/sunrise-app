@@ -156,7 +156,9 @@ func (route *Route) InspectRoute(
 		}, nil
 
 	case *Route_Series:
+		fmt.Println("routes", strategy.Series.Routes)
 		results := make([]RouteResult, len(strategy.Series.Routes))
+
 		for i := range strategy.Series.Routes {
 			var r *Route
 			if !reverse {
@@ -169,11 +171,17 @@ func (route *Route) InspectRoute(
 				return math.Int{}, RouteResult{}, err
 			}
 			results[i] = rResult
+			fmt.Println(aResult, rResult, err)
 
 			amountExact = aResult
 		}
 		// No needs to do
 		// amountResult = amountExact
+
+		fmt.Println("1amountExact: ", amountExact)
+		fmt.Println("2amountResult: ", amountResult)
+		fmt.Println("3DenomIn: ", route.DenomIn)
+		fmt.Println("4DenomOut: ", route.DenomOut)
 
 		tokenIn, tokenOut := generateResult(route.DenomIn, route.DenomOut, amountExact, amountResult)
 
