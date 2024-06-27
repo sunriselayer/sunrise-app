@@ -35,6 +35,7 @@ func (k Keeper) CalculateResultExactAmountIn(
 	amountIn math.Int,
 ) (result types.RouteResult, interfaceFee math.Int, err error) {
 	result, err = k.calculateResultRouteExactAmountIn(ctx, route, amountIn)
+	fmt.Println("result: ", result)
 	if err != nil {
 		return result, interfaceFee, err
 	}
@@ -44,6 +45,7 @@ func (k Keeper) CalculateResultExactAmountIn(
 	)
 
 	_, interfaceFee = k.calculateInterfaceFeeExactAmountIn(ctx, hasInterfaceFee, amountOutGross)
+	fmt.Println("interfaceFee: ", interfaceFee)
 
 	return result, interfaceFee, nil
 }
@@ -92,6 +94,8 @@ func (k Keeper) SwapExactAmountIn(
 }
 
 func generateResultExactAmountIn(denomIn, denomOut string, amountExact, amountResult math.Int) (tokenIn sdk.Coin, tokenOut sdk.Coin) {
+	fmt.Println("amountExact: ", amountExact)
+	fmt.Println("amountResult: ", amountResult)
 	return sdk.NewCoin(denomIn, amountExact), sdk.NewCoin(denomOut, amountResult)
 }
 
@@ -103,6 +107,7 @@ func (k Keeper) calculateResultRouteExactAmountIn(
 	_, result, err = route.InspectRoute(
 		amountIn,
 		func(denomIn string, denomOut string, pool types.RoutePool, amountExact math.Int) (math.Int, error) {
+			fmt.Println("amountExact: ", amountExact)
 			return k.calculateResultRoutePoolExactAmountIn(ctx, pool.PoolId, denomIn, denomOut, amountExact)
 		},
 		generateResultExactAmountIn,
@@ -121,6 +126,7 @@ func (k Keeper) calculateResultRoutePoolExactAmountIn(
 ) (amountOut math.Int, err error) {
 	pool, found := k.liquidityPoolKeeper.GetPool(ctx, poolId)
 	if !found {
+		fmt.Println("pool not found")
 		return math.Int{}, lptypes.ErrPoolNotFound
 	}
 
@@ -135,6 +141,8 @@ func (k Keeper) calculateResultRoutePoolExactAmountIn(
 		denomOut,
 		true,
 	)
+	fmt.Println("amountOut: ", amountOut)
+	fmt.Println("err: ", err)
 	if err != nil {
 		return math.Int{}, err
 	}

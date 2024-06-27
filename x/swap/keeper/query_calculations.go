@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdkmath "cosmossdk.io/math"
 	"google.golang.org/grpc/codes"
@@ -21,6 +22,7 @@ func (k Keeper) CalculationSwapExactAmountIn(goCtx context.Context, req *types.Q
 	if !ok {
 		return nil, types.ErrInvalidAmount
 	}
+	fmt.Println("amountIn: ", amountIn)
 	result, interfaceProviderFee, err := k.CalculateResultExactAmountIn(ctx, req.HasInterfaceFee, *req.Route, amountIn)
 	if err != nil {
 		return nil, err
